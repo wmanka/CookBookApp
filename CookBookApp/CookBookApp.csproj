@@ -10,6 +10,10 @@
     <Compile Remove="Data\Migrations\20190411132237_CreateCategoryIngredientAndRecipeTables.Designer.cs" />
     <Compile Remove="Data\Migrations\20190411132424_CreateCategoryIngredientAndRecipeTables.cs" />
     <Compile Remove="Data\Migrations\20190411132424_CreateCategoryIngredientAndRecipeTables.Designer.cs" />
+    <Compile Remove="Data\Migrations\20190411143609_ChangeMealAndIngredientsCategoriesConventions.cs" />
+    <Compile Remove="Data\Migrations\20190411143609_ChangeMealAndIngredientsCategoriesConventions.Designer.cs" />
+    <Compile Remove="Data\Migrations\20190411143805_ChangeMealAndIngredientsCategoriesConventions.cs" />
+    <Compile Remove="Data\Migrations\20190411143805_ChangeMealAndIngredientsCategoriesConventions.Designer.cs" />
   </ItemGroup>
 
 

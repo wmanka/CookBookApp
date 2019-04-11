@@ -7,17 +7,12 @@ using System.Threading.Tasks;
 
 namespace CookBookApp.Models
 {
-    [Table("Ingredients")]
-    public class Ingredient
+    [Table("MealCategories")]
+    public class MealCategory
     {
         public int Id { get; set; }
 
         [Required]
         public string Name { get; set; }
-
-        public string Description { get; set; }
-
-        public int CategoryId { get; set; }
-        public IngredientCategory Category { get; set; }
     }
 }
