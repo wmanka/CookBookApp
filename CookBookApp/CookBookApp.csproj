@@ -1,9 +1,16 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.0</TargetFramework>
     <UserSecretsId>aspnet-CookBookApp-537ED66F-49E5-4CAD-A492-006E7E62F5AC</UserSecretsId>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Data\Migrations\20190411132237_CreateCategoryIngredientAndRecipeTables.cs" />
+    <Compile Remove="Data\Migrations\20190411132237_CreateCategoryIngredientAndRecipeTables.Designer.cs" />
+    <Compile Remove="Data\Migrations\20190411132424_CreateCategoryIngredientAndRecipeTables.cs" />
+    <Compile Remove="Data\Migrations\20190411132424_CreateCategoryIngredientAndRecipeTables.Designer.cs" />
+  </ItemGroup>
 
 
   <ItemGroup>
