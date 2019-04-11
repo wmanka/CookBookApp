@@ -14,7 +14,9 @@ namespace CookBookApp.Models
         [EnumDataType(typeof(Gender))]
         public Gender Gender { get; set; }
 
-        public string Country { get; set; }
+        public string Location { get; set; }
+
+        public string Description { get; set; }
     }
 
     public enum Gender
