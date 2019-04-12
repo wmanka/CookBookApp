@@ -125,51 +125,51 @@ namespace CookBookApp.Data
             }
 
 
-            //if (!context.Ingredients.Any())
-            //{
-            //    var ingredients = new List<Ingredient>()
-            //    {
-            //        new Ingredient() { Name = "Tomato", CategoryId = 1 },
-            //        new Ingredient() { Name = "Turnip", CategoryId = 1 },
-            //        new Ingredient() { Name = "Spinach", CategoryId = 1 },
-            //        new Ingredient() { Name = "Onion", CategoryId = 1 },
-            //        new Ingredient() { Name = "Mushroom", CategoryId = 1 },
-            //        new Ingredient() { Name = "Garlic", CategoryId = 1 },
-            //        new Ingredient() { Name = "Cucumber", CategoryId = 1 },
-            //        new Ingredient() { Name = "Carrot", CategoryId = 1 },
-            //        new Ingredient() { Name = "Broccoli", CategoryId = 1 },
-            //        new Ingredient() { Name = "Rosemary", CategoryId = 2 },
-            //        new Ingredient() { Name = "Salt", CategoryId = 2 },
-            //        new Ingredient() { Name = "Pepper", CategoryId = 2 },
-            //        new Ingredient() { Name = "Mint Leaves", CategoryId = 2 },
-            //        new Ingredient() { Name = "Saffron", CategoryId = 2 },
-            //        new Ingredient() { Name = "Flour", CategoryId = 3 },
-            //        new Ingredient() { Name = "Oats", CategoryId = 3 },
-            //        new Ingredient() { Name = "Beef", CategoryId = 4 },
-            //        new Ingredient() { Name = "Chicken", CategoryId = 4 },
-            //        new Ingredient() { Name = "Turkey", CategoryId = 4 },
-            //        new Ingredient() { Name = "Ham", CategoryId = 4 },
-            //        new Ingredient() { Name = "Lamb", CategoryId = 4 },
-            //        new Ingredient() { Name = "Milk", CategoryId = 5 },
-            //        new Ingredient() { Name = "Ricotta Cheese", CategoryId = 5 },
-            //        new Ingredient() { Name = "Yogurt", CategoryId = 5 },
-            //        new Ingredient() { Name = "Mango", CategoryId = 6 },
-            //        new Ingredient() { Name = "Strawberry", CategoryId = 6 },
-            //        new Ingredient() { Name = "Papaya", CategoryId = 6 },
-            //        new Ingredient() { Name = "Shark", CategoryId = 7 },
-            //        new Ingredient() { Name = "Tuna", CategoryId = 7 },
-            //        new Ingredient() { Name = "Brown Sugar", CategoryId = 8 },
-            //        new Ingredient() { Name = "Caramel", CategoryId = 8 },
-            //        new Ingredient() { Name = "Pine Nuts", CategoryId = 9 },
-            //        new Ingredient() { Name = "Cashew Nuts", CategoryId = 9 },
-            //        new Ingredient() { Name = "Red Wine", CategoryId = 10 },
-            //        new Ingredient() { Name = "Pasta", CategoryId = 10 },
-            //        new Ingredient() { Name = "Jelly", CategoryId = 10 },
-            //    };
+            if (!context.Ingredients.Any())
+            {
+                var ingredients = new List<Ingredient>()
+                {
+                    //        new Ingredient() { Name = "Tomato", CategoryId = 1 },
+                    //        new Ingredient() { Name = "Turnip", CategoryId = 1 },
+                    //        new Ingredient() { Name = "Spinach", CategoryId = 1 },
+                    //        new Ingredient() { Name = "Onion", CategoryId = 1 },
+                    //        new Ingredient() { Name = "Mushroom", CategoryId = 1 },
+                    //        new Ingredient() { Name = "Garlic", CategoryId = 1 },
+                    //        new Ingredient() { Name = "Cucumber", CategoryId = 1 },
+                    //        new Ingredient() { Name = "Carrot", CategoryId = 1 },
+                    //        new Ingredient() { Name = "Broccoli", CategoryId = 1 },
+                    //        new Ingredient() { Name = "Rosemary", CategoryId = 2 },
+                    //        new Ingredient() { Name = "Salt", CategoryId = 2 },
+                    //        new Ingredient() { Name = "Pepper", CategoryId = 2 },
+                    //        new Ingredient() { Name = "Mint Leaves", CategoryId = 2 },
+                    //        new Ingredient() { Name = "Saffron", CategoryId = 2 },
+                    //        new Ingredient() { Name = "Flour", CategoryId = 3 },
+                    //        new Ingredient() { Name = "Oats", CategoryId = 3 },
+                            new Ingredient() { Name = "Beef", CategoryId = 36 },
+                            new Ingredient() { Name = "Chicken", CategoryId = 36 },
+                            new Ingredient() { Name = "Turkey", CategoryId = 36 },
+                            new Ingredient() { Name = "Ham", CategoryId = 36 },
+                            new Ingredient() { Name = "Lamb", CategoryId = 36 },
+                    //        new Ingredient() { Name = "Milk", CategoryId = 5 },
+                    //        new Ingredient() { Name = "Ricotta Cheese", CategoryId = 5 },
+                    //        new Ingredient() { Name = "Yogurt", CategoryId = 5 },
+                    //        new Ingredient() { Name = "Mango", CategoryId = 6 },
+                    //        new Ingredient() { Name = "Strawberry", CategoryId = 6 },
+                    //        new Ingredient() { Name = "Papaya", CategoryId = 6 },
+                    //        new Ingredient() { Name = "Shark", CategoryId = 7 },
+                    //        new Ingredient() { Name = "Tuna", CategoryId = 7 },
+                    //        new Ingredient() { Name = "Brown Sugar", CategoryId = 8 },
+                    //        new Ingredient() { Name = "Caramel", CategoryId = 8 },
+                    //        new Ingredient() { Name = "Pine Nuts", CategoryId = 9 },
+                    //        new Ingredient() { Name = "Cashew Nuts", CategoryId = 9 },
+                    //        new Ingredient() { Name = "Red Wine", CategoryId = 10 },
+                    //        new Ingredient() { Name = "Pasta", CategoryId = 10 },
+                    //        new Ingredient() { Name = "Jelly", CategoryId = 10 },
+                };
 
-            //    foreach (var ingredient in ingredients)
-            //        context.Ingredients.Add(ingredient);
-            //}
+                foreach (var ingredient in ingredients)
+                    context.Ingredients.Add(ingredient);
+            }
 
             await context.SaveChangesAsync();
         }
