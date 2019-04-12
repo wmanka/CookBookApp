@@ -38,7 +38,8 @@
                 <div class="col-sm">
                     <select id="ingredientDropdown"
                             asp-items="@(new SelectList(Model.Ingredients,"Id","Name"))"
-                            class="form-control"></select>
+                            class="form-control">
+                    </select>
                 </div>
                 <div class="col-sm">
                     <input id="quantity" type="text" class="form-control" placeholder="quantity" />
@@ -66,25 +67,52 @@
 
         $("#btn-add-ingredient").click(function () {
             var ingredientInRecipe = new Object();
-
+            var id = $('#ingredientDropdown').find(":selected").val();
             ingredientInRecipe.IngredientId = $('#ingredientDropdown').find(":selected").val();
             ingredientInRecipe.Quantity = $('#quantity').val();
 
             ingredientName = $('#ingredientDropdown').find(":selected").text();
 
-            var l = ChosenIngredients.push(ingredientInRecipe);
-            console.log(ChosenIngredients[l - 1]);
+            var isAlreadyInArray = false;
 
-            $('#ingredientsTable').append("<tr>" +
-                "<td>" + ingredientName + "</td>" +
-                "<td>" + ingredientInRecipe.Quantity + "</td>" +
-                "<td><button id='btnRemoveIngredient' class='btn btn-danger'>Remove</button></td>" +
-                "</tr>");
+            var found = $.map(ChosenIngredients, function(val) {
+                if (val.IngredientId == id) {
+                    alert("You've aleady added this item");
+                    isAlreadyInArray = true;
+                }
+            });
+
+            if (isAlreadyInArray == false) {
+                var l = ChosenIngredients.push(ingredientInRecipe);
+                console.log(ChosenIngredients[l - 1]);
+
+                // TODO Fix - fade out just one tr element
+
+                $('#ingredientsTable').append("<tr id=" + ingredientInRecipe.IngredientId + ">" +
+                    "<td>" + ingredientName + "</td>" +
+                    "<td>" + ingredientInRecipe.Quantity + "</td>" +
+                    "<td><input id='btnRemoveIngredient' type='button' value='delete' onclick='Remove("+ ingredientInRecipe.IngredientId +")' class='btn btn-danger' data-button=" + ingredientInRecipe.IngredientId +"/></td>" +
+                    "</tr>").hide().fadeIn(500);
+            }
         });
 
-        $("#btnRemoveIngredient").click(function () {
-            // TODO: implement removing ingredient from selected list
-        });
+        function Remove(id) {
+
+                $.each(ChosenIngredients, function (index, value) {
+                    if (value.IngredientId == id) {
+                        ChosenIngredients.splice(index, 1);
+
+                        $('#ingredientsTable tr#' + id).fadeOut(300, function () {
+                            $(this).remove();
+                        });
+                    }
+                });
+
+            //console.log("Final array");
+            //$.each(ChosenIngredients, function (index, value) {
+            //    console.log(value);
+            //});
+        }
 
         $("#btnPost").click(function () {
 
