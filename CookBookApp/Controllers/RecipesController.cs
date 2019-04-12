@@ -26,9 +26,8 @@ namespace CookBookApp.Controllers
         {
             IEnumerable<Recipe> recipes = null;
 
-            if (category == null)
-                recipes = context.Recipes.Include(r => r.Category);
-            else if(category == "recentlyAdded")
+
+            if(category == "recentlyAdded" || category == null)
             {
                 recipes = context.Recipes.Include(r => r.Category).OrderByDescending(r => r.CreatedAt);
             }

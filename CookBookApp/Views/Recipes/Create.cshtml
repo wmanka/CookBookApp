@@ -18,6 +18,12 @@
     </div>
 
     <div class="form-group">
+        <label asp-for="@Model.Recipe.ShortDescription"></label>
+        <input id="inputDescription" asp-for="@Model.Recipe.ShortDescription" class="form-control" />
+        <span asp-validation-for="@Model.Recipe.ShortDescription" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
         <label asp-for="@Model.Recipe.Instructions"></label>
         <textarea id="inputInstructions" asp-for="@Model.Recipe.Instructions" class="form-control" rows="6"></textarea>
         <span asp-validation-for="@Model.Recipe.Instructions" class="text-danger"></span>
@@ -33,21 +39,20 @@
     </div>
 
     <div class="form-group">
-            <label class="control-label">Ingredients</label>
-            <div class="row">
-                <div class="col-sm">
-                    <select id="ingredientDropdown"
-                            asp-items="@(new SelectList(Model.Ingredients,"Id","Name"))"
-                            class="form-control">
-                    </select>
-                </div>
-                <div class="col-sm">
-                    <input id="quantity" type="text" class="form-control" placeholder="quantity" />
-                </div>
-                <div class="col-sm">
-                    <input id="btn-add-ingredient" class="btn btn-warning " type="button" value="Add" />
-                </div>
+        <label class="control-label">Ingredients</label>
+        <div class="row">
+            <div class="col-sm">
+                <select id="ingredientDropdown"
+                        asp-items="@(new SelectList(Model.Ingredients,"Id","Name"))"
+                        class="form-control"></select>
             </div>
+            <div class="col-sm">
+                <input id="quantity" type="text" class="form-control" placeholder="quantity" />
+            </div>
+            <div class="col-sm">
+                <input id="btn-add-ingredient" class="btn btn-warning " type="button" value="Add" />
+            </div>
+        </div>
     </div>
 
     <div class="form-group">
@@ -119,7 +124,8 @@
             var vm = new Object();
             var recipe = new Object();
             recipe.Id = $('#recipeId').val();
-                recipe.Name = $('#inputName').val();
+            recipe.Name = $('#inputName').val();
+            recipe.ShortDescription = $('#inputDescription').val();
             recipe.Instructions = $('#inputInstructions').val();
             recipe.CategoryId = $('#mealCategoryDropdown').find(":selected").val();
             vm.Recipe = recipe;

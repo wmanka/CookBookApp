@@ -15,6 +15,8 @@ namespace CookBookApp.Models
         [Required]
         public string Name { get; set; }
 
+        public string ShortDescription { get; set; }
+
         [Required]
         public string Instructions { get; set; }
 
