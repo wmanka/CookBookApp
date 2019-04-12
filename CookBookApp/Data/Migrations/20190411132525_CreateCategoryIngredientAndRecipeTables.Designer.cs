@@ -4,14 +4,16 @@ using CookBookApp.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace CookBookApp.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20190411132525_CreateCategoryIngredientAndRecipeTables")]
+    partial class CreateCategoryIngredientAndRecipeTables
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -78,13 +80,25 @@ namespace CookBookApp.Data.Migrations
                     b.ToTable("AspNetUsers");
                 });
 
-            modelBuilder.Entity("CookBookApp.Models.Ingredient", b =>
+            modelBuilder.Entity("CookBookApp.Models.Category", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<int>("CategoryId");
+                    b.Property<string>("Name")
+                        .IsRequired();
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Categories");
+                });
+
+            modelBuilder.Entity("CookBookApp.Models.Ingredient", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<string>("Description");
 
@@ -93,23 +107,7 @@ namespace CookBookApp.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CategoryId");
-
                     b.ToTable("Ingredients");
-                });
-
-            modelBuilder.Entity("CookBookApp.Models.IngredientCategory", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<string>("Name")
-                        .IsRequired();
-
-                    b.HasKey("Id");
-
-                    b.ToTable("IngredientCategories");
                 });
 
             modelBuilder.Entity("CookBookApp.Models.IngredientInRecipe", b =>
@@ -122,7 +120,7 @@ namespace CookBookApp.Data.Migrations
 
                     b.Property<string>("Quantity");
 
-                    b.Property<int>("RecipeId");
+                    b.Property<int?>("RecipeId");
 
                     b.HasKey("Id");
 
@@ -131,20 +129,6 @@ namespace CookBookApp.Data.Migrations
                     b.HasIndex("RecipeId");
 
                     b.ToTable("IngredientsInRecipes");
-                });
-
-            modelBuilder.Entity("CookBookApp.Models.MealCategory", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<string>("Name")
-                        .IsRequired();
-
-                    b.HasKey("Id");
-
-                    b.ToTable("MealCategories");
                 });
 
             modelBuilder.Entity("CookBookApp.Models.Recipe", b =>
@@ -288,14 +272,6 @@ namespace CookBookApp.Data.Migrations
                     b.ToTable("AspNetUserTokens");
                 });
 
-            modelBuilder.Entity("CookBookApp.Models.Ingredient", b =>
-                {
-                    b.HasOne("CookBookApp.Models.IngredientCategory", "Category")
-                        .WithMany()
-                        .HasForeignKey("CategoryId")
-                        .OnDelete(DeleteBehavior.Cascade);
-                });
-
             modelBuilder.Entity("CookBookApp.Models.IngredientInRecipe", b =>
                 {
                     b.HasOne("CookBookApp.Models.Ingredient", "Ingredient")
@@ -303,15 +279,14 @@ namespace CookBookApp.Data.Migrations
                         .HasForeignKey("IngredientId")
                         .OnDelete(DeleteBehavior.Cascade);
 
-                    b.HasOne("CookBookApp.Models.Recipe", "Recipe")
+                    b.HasOne("CookBookApp.Models.Recipe")
                         .WithMany("Ingredients")
-                        .HasForeignKey("RecipeId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .HasForeignKey("RecipeId");
                 });
 
             modelBuilder.Entity("CookBookApp.Models.Recipe", b =>
                 {
-                    b.HasOne("CookBookApp.Models.MealCategory", "Category")
+                    b.HasOne("CookBookApp.Models.Category", "Category")
                         .WithMany()
                         .HasForeignKey("CategoryId")
                         .OnDelete(DeleteBehavior.Cascade);

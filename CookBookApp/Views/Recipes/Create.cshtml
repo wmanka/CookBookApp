@@ -1,0 +1,145 @@
+﻿@model CookBookApp.Models.ViewModels.CreateRecipeViewModel
+
+@{
+    ViewData["Title"] = "New Recipe";
+}
+
+<h1>Create Recipe</h1>
+
+<form>
+    <div class="form-group">
+        <input id="recipeId" type="hidden" asp-for="@Model.Recipe.Id" value="@Model.Recipe.Id" />
+    </div>
+
+    <div class="form-group">
+        <label asp-for="@Model.Recipe.Name"></label>
+        <input id="inputName" asp-for="@Model.Recipe.Name" class="form-control" />
+        <span asp-validation-for="@Model.Recipe.Name" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="@Model.Recipe.Instructions"></label>
+        <textarea id="inputInstructions" asp-for="@Model.Recipe.Instructions" class="form-control" rows="6"></textarea>
+        <span asp-validation-for="@Model.Recipe.Instructions" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="@Model.MealCategoryId" class="control-label"></label>
+        <select id="mealCategoryDropdown"
+                asp-for="@Model.MealCategoryId"
+                asp-items="@(new SelectList(Model.MealCategories,"Id","Name"))"
+                class="form-control"></select>
+        <span asp-validation-for="@Model.MealCategoryId" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+            <label class="control-label">Ingredients</label>
+            <div class="row">
+                <div class="col-sm">
+                    <select id="ingredientDropdown"
+                            asp-items="@(new SelectList(Model.Ingredients,"Id","Name"))"
+                            class="form-control">
+                    </select>
+                </div>
+                <div class="col-sm">
+                    <input id="quantity" type="text" class="form-control" placeholder="quantity" />
+                </div>
+                <div class="col-sm">
+                    <input id="btn-add-ingredient" class="btn btn-warning " type="button" value="Add" />
+                </div>
+            </div>
+    </div>
+
+    <div class="form-group">
+        <table id="ingredientsTable" class="table table-borderless table-hover table-sm"></table>
+    </div>
+
+    <div class="form-group">
+        <input type="button" id="btnPost" value="Create" class="btn btn-primary" />
+    </div>
+</form>
+
+
+@section Scripts  {
+    <script>
+
+        var ChosenIngredients = [];
+
+        $("#btn-add-ingredient").click(function () {
+            var ingredientInRecipe = new Object();
+            var id = $('#ingredientDropdown').find(":selected").val();
+            ingredientInRecipe.IngredientId = $('#ingredientDropdown').find(":selected").val();
+            ingredientInRecipe.Quantity = $('#quantity').val();
+
+            ingredientName = $('#ingredientDropdown').find(":selected").text();
+
+            var isAlreadyInArray = false;
+
+            var found = $.map(ChosenIngredients, function(val) {
+                if (val.IngredientId == id) {
+                    alert("You've aleady added this item");
+                    isAlreadyInArray = true;
+                }
+            });
+
+            if (isAlreadyInArray == false) {
+                var l = ChosenIngredients.push(ingredientInRecipe);
+                console.log(ChosenIngredients[l - 1]);
+
+                // TODO Fix - fade out just one tr element
+
+                $('#ingredientsTable').append("<tr id=" + ingredientInRecipe.IngredientId + ">" +
+                    "<td>" + ingredientName + "</td>" +
+                    "<td>" + ingredientInRecipe.Quantity + "</td>" +
+                    "<td><input id='btnRemoveIngredient' type='button' value='delete' onclick='Remove("+ ingredientInRecipe.IngredientId +")' class='btn btn-danger' data-button=" + ingredientInRecipe.IngredientId +"/></td>" +
+                    "</tr>").hide().fadeIn(500);
+            }
+        });
+
+        function Remove(id) {
+
+                $.each(ChosenIngredients, function (index, value) {
+                    if (value.IngredientId == id) {
+                        ChosenIngredients.splice(index, 1);
+
+                        $('#ingredientsTable tr#' + id).fadeOut(300, function () {
+                            $(this).remove();
+                        });
+                    }
+                });
+
+            //console.log("Final array");
+            //$.each(ChosenIngredients, function (index, value) {
+            //    console.log(value);
+            //});
+        }
+
+        $("#btnPost").click(function () {
+
+            var vm = new Object();
+            var recipe = new Object();
+            recipe.Id = $('#recipeId').val();
+                recipe.Name = $('#inputName').val();
+            recipe.Instructions = $('#inputInstructions').val();
+            recipe.CategoryId = $('#mealCategoryDropdown').find(":selected").val();
+            vm.Recipe = recipe;
+            vm.ChosenIngredients = ChosenIngredients;
+
+            url = "/Recipes/CreateRecipe";
+            data = vm;
+            dataType = "json";
+
+            $.ajax({
+                type: "POST",
+                url: url,
+                data: data,
+                success: function (response) {
+                    window.location.href = response.redirectToUrl;
+                },
+                dataType: dataType
+            });
+        });
+
+    </script>
+}
+
