@@ -7,6 +7,7 @@ using CookBookApp.Models;
 using CookBookApp.Models.ViewModels;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace CookBookApp.Controllers
 {
@@ -19,6 +20,28 @@ namespace CookBookApp.Controllers
         {
             this.context = context;
             this.userManager = userManager;
+        }
+
+        public IActionResult Index(string category)
+        {
+            IEnumerable<Recipe> recipes = null;
+
+            if (category == null)
+                recipes = context.Recipes.Include(r => r.Category);
+            else if(category == "recentlyAdded")
+            {
+                recipes = context.Recipes.Include(r => r.Category).OrderByDescending(r => r.CreatedAt);
+            }
+            else
+                recipes = context.Recipes.Include(r => r.Category).Where(r => r.Category.Name == category);
+
+            var vm = new RecipesIndexViewModel()
+            {
+                Recipes = recipes.ToList(),
+                Categories = context.Categories.ToList()
+            };
+
+            return View(vm);
         }
 
         public IActionResult Create()
@@ -62,5 +85,6 @@ namespace CookBookApp.Controllers
 
             return Json(new { redirectToUrl = Url.Action("Index", "Home") });
         }
+
     }
 }
