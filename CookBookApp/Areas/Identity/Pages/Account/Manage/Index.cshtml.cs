@@ -80,6 +80,9 @@ namespace CookBookApp.Areas.Identity.Pages.Account.Manage
             var location = user.Location;
             var gender = user.Gender;
             var description = user.Description;
+            //var file = user.Files.SingleOrDefault(f => f.FileType == FileType.Avatar);
+            var file = _context.Files.Where(f => f.UserId == user.Id).FirstOrDefault(f => f.FileType == FileType.Avatar);
+            ViewData["Bas64Image"] = "data:image/jpeg;base64," + Convert.ToBase64String(file.Content, 0, file.Content.Length);
 
             Username = userName;
 
@@ -90,7 +93,8 @@ namespace CookBookApp.Areas.Identity.Pages.Account.Manage
                 Name = name,
                 Location = location,
                 Gender = gender,
-                Description = description
+                Description = description,
+                File = file
             };
 
             IsEmailConfirmed = await _userManager.IsEmailConfirmedAsync(user);
@@ -152,7 +156,9 @@ namespace CookBookApp.Areas.Identity.Pages.Account.Manage
                 user.Description = Input.Description;
 
 
-            var files = _context.Files.Where(f => f.User == user);
+
+            var currentAvatar = _context.Files.Where(f => f.User == user).SingleOrDefault(f => f.FileType == FileType.Avatar);
+
             try
             {
                 if (upload != null && upload.Length > 0)
@@ -170,18 +176,9 @@ namespace CookBookApp.Areas.Identity.Pages.Account.Manage
                         avatar.Content = reader.ReadBytes((int)upload.Length);
                     }
 
-                    var isAlreadyInDb = false;
-                    foreach (var file in files)
-                    {  
-                        if (avatar.FileName == file.FileName)
-                        {
-                            isAlreadyInDb = true;
-                            break;
-                        }
-                    }
-
-                    if(isAlreadyInDb == false)
-                        _context.Files.Add(avatar);
+                    _context.Remove(currentAvatar);
+                    _context.Files.Add(avatar);
+ 
                 }
             }
             catch (RetryLimitExceededException)
