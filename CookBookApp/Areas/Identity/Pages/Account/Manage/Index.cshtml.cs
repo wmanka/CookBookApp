@@ -6,10 +6,12 @@ using System.Text.Encodings.Web;
 using System.Threading.Tasks;
 using CookBookApp.Data;
 using CookBookApp.Models;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace CookBookApp.Areas.Identity.Pages.Account.Manage
 {
@@ -59,6 +61,8 @@ namespace CookBookApp.Areas.Identity.Pages.Account.Manage
             public Gender Gender { get; set; }
 
             public string Description { get; set; }
+
+            public File File { get; set; }
         }
 
         public async Task<IActionResult> OnGetAsync()
@@ -76,6 +80,9 @@ namespace CookBookApp.Areas.Identity.Pages.Account.Manage
             var location = user.Location;
             var gender = user.Gender;
             var description = user.Description;
+            //var file = user.Files.SingleOrDefault(f => f.FileType == FileType.Avatar);
+            var file = _context.Files.Where(f => f.UserId == user.Id).FirstOrDefault(f => f.FileType == FileType.Avatar);
+            ViewData["Bas64Image"] = "data:image/jpeg;base64," + Convert.ToBase64String(file.Content, 0, file.Content.Length);
 
             Username = userName;
 
@@ -86,7 +93,8 @@ namespace CookBookApp.Areas.Identity.Pages.Account.Manage
                 Name = name,
                 Location = location,
                 Gender = gender,
-                Description = description
+                Description = description,
+                File = file
             };
 
             IsEmailConfirmed = await _userManager.IsEmailConfirmedAsync(user);
@@ -94,7 +102,7 @@ namespace CookBookApp.Areas.Identity.Pages.Account.Manage
             return Page();
         }
 
-        public async Task<IActionResult> OnPostAsync()
+        public async Task<IActionResult> OnPostAsync(IFormFile upload)
         {
             if (!ModelState.IsValid)
             {
@@ -129,6 +137,8 @@ namespace CookBookApp.Areas.Identity.Pages.Account.Manage
                 }
             }
 
+            // TODO - Fix this to use external services instead of gathering data straight from ApplicationDbContext
+
             var name = user.Name;
             if(Input.Name != name)
                 user.Name = Input.Name;
@@ -144,6 +154,37 @@ namespace CookBookApp.Areas.Identity.Pages.Account.Manage
             var description = user.Description;
             if (Input.Description != description)
                 user.Description = Input.Description;
+
+
+
+            var currentAvatar = _context.Files.Where(f => f.User == user).SingleOrDefault(f => f.FileType == FileType.Avatar);
+
+            try
+            {
+                if (upload != null && upload.Length > 0)
+                {
+                    var avatar = new File
+                    {
+                        FileName = System.IO.Path.GetFileName(upload.FileName),
+                        FileType = FileType.Avatar,
+                        ContentType = upload.ContentType,
+                        UserId = user.Id
+                    };
+
+                    using (var reader = new System.IO.BinaryReader(upload.OpenReadStream()))
+                    {
+                        avatar.Content = reader.ReadBytes((int)upload.Length);
+                    }
+
+                    _context.Remove(currentAvatar);
+                    _context.Files.Add(avatar);
+ 
+                }
+            }
+            catch (RetryLimitExceededException)
+            {
+                ModelState.AddModelError("", "Unable to save changes.");
+            }  
 
             _context.SaveChanges();
 
