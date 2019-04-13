@@ -15,21 +15,18 @@ namespace CookBookApp.Areas.Identity.Pages.Account.Manage
 {
     public partial class IndexModel : PageModel
     {
-        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly ApplicationUserManager _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly IEmailSender _emailSender;
-        private readonly ApplicationDbContext _context;
 
         public IndexModel(
-            UserManager<ApplicationUser> userManager,
+            ApplicationUserManager userManager,
             SignInManager<ApplicationUser> signInManager,
-            IEmailSender emailSender,
-            ApplicationDbContext context)
+            IEmailSender emailSender)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _emailSender = emailSender;
-            _context = context;
         }
 
         public string Username { get; set; }
@@ -72,10 +69,10 @@ namespace CookBookApp.Areas.Identity.Pages.Account.Manage
             var userName = await _userManager.GetUserNameAsync(user);
             var email = await _userManager.GetEmailAsync(user);
             var phoneNumber = await _userManager.GetPhoneNumberAsync(user);
-            var name = user.Name;
-            var location = user.Location;
-            var gender = user.Gender;
-            var description = user.Description;
+            var name = await _userManager.GetNameAsync(user);
+            var location = await _userManager.GetLocationAsync(user);
+            var gender = await _userManager.GetGenderAsync(user);
+            var description = await _userManager.GetDescriptionAsync(user);
 
             Username = userName;
 
@@ -129,23 +126,52 @@ namespace CookBookApp.Areas.Identity.Pages.Account.Manage
                 }
             }
 
-            var name = user.Name;
-            if(Input.Name != name)
-                user.Name = Input.Name;
-
-            var country = user.Location;
-            if (Input.Location != country)
-                user.Location = Input.Location;
-
-            var gender = user.Gender;
+            var gender = await _userManager.GetGenderAsync(user);
             if (Input.Gender != gender)
-                user.Gender = Input.Gender;
+            {
+                var setGenderResult = await _userManager.SetGenderAsync(user, Input.Gender);
+                if (!setGenderResult.Succeeded)
+                {
+                    var userId = await _userManager.GetUserIdAsync(user);
+                    throw new InvalidOperationException($"Unexpected error occurred setting gender for user with ID '{userId}'.");
+                }
+            }
 
-            var description = user.Description;
+            var name = await _userManager.GetNameAsync(user);
+            if (Input.Name != name)
+            {
+                var setNameResult = await _userManager.SetNameAsync(user, Input.Name);
+                if (!setNameResult.Succeeded)
+                {
+                    var userId = await _userManager.GetUserIdAsync(user);
+                    throw new InvalidOperationException($"Unexpected error occurred setting name for user with ID '{userId}'.");
+                }
+            }
+
+
+            var description = await _userManager.GetDescriptionAsync(user);
             if (Input.Description != description)
-                user.Description = Input.Description;
+            {
+                var setDescriptionResult = await _userManager.SetDescriptionAsync(user, Input.Description);
+                if (!setDescriptionResult.Succeeded)
+                {
+                    var userId = await _userManager.GetUserIdAsync(user);
+                    throw new InvalidOperationException($"Unexpected error occurred setting description for user with ID '{userId}'.");
+                }
+            }
 
-            _context.SaveChanges();
+            var location = await _userManager.GetLocationAsync(user);
+            if (Input.Location != location)
+            {
+                var setLocationResult = await _userManager.SetLocationAsync(user, Input.Location);
+                if (!setLocationResult.Succeeded)
+                {
+                    var userId = await _userManager.GetUserIdAsync(user);
+                    throw new InvalidOperationException($"Unexpected error occurred setting location for user with ID '{userId}'.");
+                }
+           }
+
+            await _userManager.UpdateAsync(user);
 
             await _signInManager.RefreshSignInAsync(user);
             StatusMessage = "Your profile has been updated";
