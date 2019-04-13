@@ -36,7 +36,7 @@
                     <div class="card-body">
                         <h5 class="card-title">@recipe.Name</h5>
                         <p class="card-text">@recipe.ShortDescription</p>
-                        <button class="btn btn-primary" name="@recipe.Id">Details</button>
+                        <a asp-action="Details" asp-controller="Recipes" asp-route-id="@recipe.Id" class="dropdown-item">Details</a>
                     </div>
                     <div class="card-footer">
                         <p class="card-text"><small class="text-muted">Added @recipe.CreatedAt</small></p>
@@ -46,3 +46,9 @@
         </div>
     </div>
 </div>
+
+@section Scripts  {
+    <script>
+
+    </script>
+}

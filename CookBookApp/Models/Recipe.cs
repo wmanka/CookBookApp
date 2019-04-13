@@ -20,6 +20,11 @@ namespace CookBookApp.Models
         [Required]
         public string Instructions { get; set; }
 
+        public string PreparationTime { get; set; }
+
+        [EnumDataType(typeof(DifficultyLevel))]
+        public DifficultyLevel DifficultyLevel { get; set; }
+
         public DateTime CreatedAt { get; set; }
 
         public int CategoryId { get; set; }
@@ -29,5 +34,12 @@ namespace CookBookApp.Models
         public ApplicationUser User { get; set; }
 
         public IEnumerable<IngredientInRecipe> Ingredients { get; set; }
+    }
+
+    public enum DifficultyLevel
+    {
+        Easy = 1,
+        Medium = 2,
+        Hard = 3
     }
 }

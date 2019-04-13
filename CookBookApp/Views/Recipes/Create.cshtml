@@ -24,6 +24,21 @@
     </div>
 
     <div class="form-group">
+        <label asp-for="@Model.Recipe.PreparationTime"></label>
+        <input id="inputPreparationTime" asp-for="@Model.Recipe.PreparationTime" class="form-control" />
+        <span asp-validation-for="@Model.Recipe.PreparationTime" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="@Model.Recipe.DifficultyLevel"></label>
+        <select id="difficultyLevelDropdown"
+                asp-for="@Model.Recipe.DifficultyLevel" asp-items="Html.GetEnumSelectList<DifficultyLevel>()" class="form-control">
+
+        </select>
+        <span asp-validation-for="@Model.Recipe.DifficultyLevel" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
         <label asp-for="@Model.Recipe.Instructions"></label>
         <textarea id="inputInstructions" asp-for="@Model.Recipe.Instructions" class="form-control" rows="6"></textarea>
         <span asp-validation-for="@Model.Recipe.Instructions" class="text-danger"></span>
@@ -126,8 +141,10 @@
             recipe.Id = $('#recipeId').val();
             recipe.Name = $('#inputName').val();
             recipe.ShortDescription = $('#inputDescription').val();
+            recipe.PreparationTime = $('#inputPreparationTime').val();
             recipe.Instructions = $('#inputInstructions').val();
             recipe.CategoryId = $('#mealCategoryDropdown').find(":selected").val();
+            recipe.DifficultyLevel = $('#difficultyLevelDropdown').find(":selected").val();
             vm.Recipe = recipe;
             vm.ChosenIngredients = ChosenIngredients;
 

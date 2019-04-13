@@ -56,7 +56,6 @@ namespace CookBookApp.Controllers
             return View(vm);
         }
 
-
         public IActionResult CreateRecipe(CreateRecipeViewModel vm)
         {
             var recipe = vm.Recipe;
@@ -83,6 +82,32 @@ namespace CookBookApp.Controllers
             context.SaveChanges();
 
             return Json(new { redirectToUrl = Url.Action("Index", "Home") });
+        }
+
+        public IActionResult Details(int id)
+        {
+            var ingredientsInRecipe = context.IngredientsInRecipes.Where(i => i.RecipeId == id).ToList();
+
+            var list = new List<IngredientWithQuantity>();
+
+            foreach (var ingredient in ingredientsInRecipe)
+            {
+                var item = new IngredientWithQuantity()
+                {
+                    Ingredient = context.Ingredients.FirstOrDefault(i => i.Id == ingredient.IngredientId),
+                    Quantity = ingredient.Quantity
+                };
+
+                list.Add(item);
+            }
+
+            var vm = new RecipeDetailsViewModel()
+            {
+                Recipe = context.Recipes.Include(r => r.Category).Include(r => r.User).FirstOrDefault(r => r.Id == id),
+                Ingredients = list
+            };
+
+            return View(vm);
         }
 
     }
