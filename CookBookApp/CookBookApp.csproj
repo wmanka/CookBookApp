@@ -14,6 +14,8 @@
     <Compile Remove="Data\Migrations\20190411143609_ChangeMealAndIngredientsCategoriesConventions.Designer.cs" />
     <Compile Remove="Data\Migrations\20190411143805_ChangeMealAndIngredientsCategoriesConventions.cs" />
     <Compile Remove="Data\Migrations\20190411143805_ChangeMealAndIngredientsCategoriesConventions.Designer.cs" />
+    <Compile Remove="Data\Migrations\20190413130602_AddFilesTable.cs" />
+    <Compile Remove="Data\Migrations\20190413130602_AddFilesTable.Designer.cs" />
   </ItemGroup>
 
 

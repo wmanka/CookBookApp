@@ -15,6 +15,8 @@ namespace CookBookApp.Data
         public DbSet<Ingredient> Ingredients { get; set; }
         public DbSet<IngredientInRecipe> IngredientsInRecipes { get; set; }
         public DbSet<Recipe> Recipes { get; set; }
+        public DbSet<File> Files { get; set; }
+
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
