@@ -40,7 +40,7 @@ namespace CookBookApp.Controllers
 
         // POST api/categories
         [HttpPost]
-        public IActionResult Post([FromBody]MealCategoryDTO category)
+        public IActionResult Post(MealCategoryDTO category)
         {
             if (category == null) return BadRequest();
 

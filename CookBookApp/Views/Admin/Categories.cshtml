@@ -1,19 +1,29 @@
-﻿<h1>Manage Categories</h1>
+﻿<div class="container-fluid">
+    <h1>Manage Categories</h1>
+    <br />
+    <div class="row">
+        <div class="form-group col-md-9">
+            <input id="name" class="form-control" placeholder="Add new category" />
+        </div>
+        <div class="form-group col-md-3">
+            <button id="btnAdd" class="btn btn-primary">Add category</button>
+        </div>
+    </div>
 
-<table id="categoriesTable" class="display" style="width:100%">
-    <thead>
-        <tr>
-            <th>Id</th>
-            <th>Name</th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-        </tr>
-    </tbody>
-</table>
-
+    <br />
+    <table id="categoriesTable" class="display">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Name</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr></tr>
+        </tbody>
+    </table>
+</div>
 
 @section Scripts {
 
@@ -21,14 +31,14 @@
 
         $(document).ready(function () {
             var table = $('#categoriesTable').DataTable({
-                ajax:{url:"/api/categories",dataSrc:""},
+                ajax: { url: "/api/categories", dataSrc: "" },
                 "columns": [
-                    { "data": "id"},
-                    { "data": "name"},
+                    { "data": "id" },
+                    { "data": "name" },
                     {
                         "data": "id",
                         "render": function (data) {
-                            return "<button class='btn btn-link js-delete' data-category-id='"+ data + "'>Delete</button>";
+                            return "<button class='btn btn-link' data-category-id='" + data + "'>Edit</button>";
                         }
                     }
                 ]
@@ -47,6 +57,20 @@
                 });
             })
 
+            $("#btnAdd").click(function () {
+                var name = $("#name").val();
+                alert("clicked");
+
+                $.ajax({
+                    url: "/api/categories/",
+                    method: "POST",
+                    data: { Name: name },
+                    success: function (data) {
+                        table.rows.add([data]);
+                        table.draw();
+                    }
+                });
+            });
         });
     </script>
 }
