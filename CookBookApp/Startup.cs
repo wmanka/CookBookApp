@@ -15,6 +15,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using CookBookApp.Models;
+using CookBookApp.Services;
+using CookBookApp.Services.Interfaces;
 
 namespace CookBookApp
 {
@@ -45,6 +47,8 @@ namespace CookBookApp
                 .AddUserManager<ApplicationUserManager>()
                 .AddDefaultUI(UIFramework.Bootstrap4)
                 .AddEntityFrameworkStores<ApplicationDbContext>();
+
+            services.AddTransient<ICategoryService, CategoryService>();
 
             services.AddMvc()
                 .AddNewtonsoftJson();
