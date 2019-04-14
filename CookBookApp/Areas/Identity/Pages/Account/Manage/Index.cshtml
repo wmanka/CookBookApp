@@ -18,14 +18,7 @@
             <div class="form-group">
                 <div class="row">
                     <div class="col-md-4">
-                        @* TODO - Fix this too *@
-                        @{
-                            String path = "data:image/jpeg;base64," + Convert.ToBase64String(Model.Input.File.Content, 0, Model.Input.File.Content.Length);
-                        }
-                        @if (Model.Input.File != null)
-                        {
-                            <img alt="" src="@path" style="height:150px;width:150px;" />
-                        }
+                        <img alt="" src="@ViewData["AvatarPath"]" style="height:150px;width:150px;" />
                     </div>
                     <div class="form-group col-md-6" >
                         <label>Change Avatar:</label>
@@ -35,7 +28,6 @@
                     </div>
                 </div>
             </div>
-
             <div class="form-group">
                 <label asp-for="Input.Email"></label>
                 @if (Model.IsEmailConfirmed)
@@ -52,44 +44,33 @@
                 }
                 <span asp-validation-for="Input.Email" class="text-danger"></span>
             </div>
-
             <div class="form-group">
                 <label asp-for="Input.Name"></label>
                 <input asp-for="Input.Name" class="form-control" />
                 <span asp-validation-for="Input.Name" class="text-danger"></span>
             </div>
-
             <div class="form-group">
                 <label asp-for="Input.Location"></label>
                 <input asp-for="Input.Location" class="form-control" />
                 <span asp-validation-for="Input.Location" class="text-danger"></span>
             </div>
-
             <div class="form-group">
                 <label asp-for="Input.Description"></label>
                 <textarea asp-for="Input.Description" class="form-control" cols="6" rows="10"></textarea>
                 <span asp-validation-for="Input.Description" class="text-danger"></span>
             </div>
-
             <div class="form-group">
                 <label asp-for="Input.Gender"></label>
                 <select asp-for="Input.Gender" asp-items="Html.GetEnumSelectList<Gender>()" class="form-control"> </select>
                 <span asp-validation-for="Input.Gender" class="text-danger"></span>
             </div>
-
             <div class="form-group">
                 <label asp-for="Input.PhoneNumber"></label>
                 <input asp-for="Input.PhoneNumber" class="form-control" />
                 <span asp-validation-for="Input.PhoneNumber" class="text-danger"></span>
             </div>
-
-
-
             <button id="update-profile-button" type="submit" class="btn btn-primary">Save</button>
         </form>
-
-
-
     </div>
 </div>
 

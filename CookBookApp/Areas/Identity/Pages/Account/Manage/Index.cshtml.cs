@@ -20,15 +20,18 @@ namespace CookBookApp.Areas.Identity.Pages.Account.Manage
         private readonly ApplicationUserManager _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly IEmailSender _emailSender;
+        private readonly ApplicationDbContext context;
 
         public IndexModel(
             ApplicationUserManager userManager,
             SignInManager<ApplicationUser> signInManager,
-            IEmailSender emailSender)
+            IEmailSender emailSender,
+            ApplicationDbContext context)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _emailSender = emailSender;
+            this.context = context;
         }
 
         public string Username { get; set; }
@@ -77,9 +80,10 @@ namespace CookBookApp.Areas.Identity.Pages.Account.Manage
             var location = await _userManager.GetLocationAsync(user);
             var gender = await _userManager.GetGenderAsync(user);
             var description = await _userManager.GetDescriptionAsync(user);
+            var file = context.Files.Where(f => f.UserId == user.Id).FirstOrDefault(f => f.FileType == FileType.Avatar);
 
-            var file = _context.Files.Where(f => f.UserId == user.Id).FirstOrDefault(f => f.FileType == FileType.Avatar);
-            ViewData["AvatarPath"] = "data:image/jpeg;base64," + Convert.ToBase64String(file.Content, 0, file.Content.Length);
+            if(file != null)
+                ViewData["AvatarPath"] = "data:image/jpeg;base64," + Convert.ToBase64String(file.Content, 0, file.Content.Length);
 
             Username = userName;
 
@@ -134,8 +138,6 @@ namespace CookBookApp.Areas.Identity.Pages.Account.Manage
                 }
             }
 
-           
-
             var name = await _userManager.GetNameAsync(user);
             if (Input.Name != name)
             {
@@ -146,7 +148,6 @@ namespace CookBookApp.Areas.Identity.Pages.Account.Manage
                     throw new InvalidOperationException($"Unexpected error occurred setting name for user with ID '{userId}'.");
                 }
             }
-
 
             var description = await _userManager.GetDescriptionAsync(user);
             if (Input.Description != description)
@@ -170,9 +171,7 @@ namespace CookBookApp.Areas.Identity.Pages.Account.Manage
                 }
            }
 
-
-
-            var currentAvatar = _context.Files.Where(f => f.User == user).SingleOrDefault(f => f.FileType == FileType.Avatar);
+            var currentAvatar = context.Files.Where(f => f.User == user).SingleOrDefault(f => f.FileType == FileType.Avatar);
 
             try
             {
@@ -191,8 +190,9 @@ namespace CookBookApp.Areas.Identity.Pages.Account.Manage
                         avatar.Content = reader.ReadBytes((int)upload.Length);
                     }
 
-                    _context.Remove(currentAvatar);
-                    _context.Files.Add(avatar);
+                    if(currentAvatar != null)
+                        context.Remove(currentAvatar);
+                    context.Files.Add(avatar);
  
                 }
             }
@@ -201,7 +201,7 @@ namespace CookBookApp.Areas.Identity.Pages.Account.Manage
                 ModelState.AddModelError("", "Unable to save changes.");
             }  
 
-            _context.SaveChanges();
+            context.SaveChanges();
 
             await _signInManager.RefreshSignInAsync(user);
             StatusMessage = "Your profile has been updated";
@@ -220,7 +220,6 @@ namespace CookBookApp.Areas.Identity.Pages.Account.Manage
             {
                 return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
             }
-
 
             var userId = await _userManager.GetUserIdAsync(user);
             var email = await _userManager.GetEmailAsync(user);
