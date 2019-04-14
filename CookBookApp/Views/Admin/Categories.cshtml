@@ -1,0 +1,52 @@
+﻿<h1>Manage Categories</h1>
+
+<table id="categoriesTable" class="display" style="width:100%">
+    <thead>
+        <tr>
+            <th>Id</th>
+            <th>Name</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+        </tr>
+    </tbody>
+</table>
+
+
+@section Scripts {
+
+    <script>
+
+        $(document).ready(function () {
+            var table = $('#categoriesTable').DataTable({
+                ajax:{url:"/api/categories",dataSrc:""},
+                "columns": [
+                    { "data": "id"},
+                    { "data": "name"},
+                    {
+                        "data": "id",
+                        "render": function (data) {
+                            return "<button class='btn btn-link js-delete' data-category-id='"+ data + "'>Delete</button>";
+                        }
+                    }
+                ]
+            });
+
+            $("#categoriesTable").on("click", ".js-delete", function () {
+                var button = $(this);
+
+                alert("Do you want to delete this category?");
+                $.ajax({
+                    url: "/api/categories/" + button.attr("data-category-id"),
+                    method: "DELETE",
+                    success: function () {
+                        table.row(button.parents("tr")).remove().draw();
+                    }
+                });
+            })
+
+        });
+    </script>
+}
