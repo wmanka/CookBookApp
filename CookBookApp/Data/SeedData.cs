@@ -127,6 +127,7 @@ namespace CookBookApp.Data
 
             if (!context.Ingredients.Any())
             {
+                var category = context.IngredientCategory.Local.Where(a => a.Name == "Meat").First();
                 var ingredients = new List<Ingredient>()
                 {
                     //        new Ingredient() { Name = "Tomato", CategoryId = 1 },
@@ -145,11 +146,11 @@ namespace CookBookApp.Data
                     //        new Ingredient() { Name = "Saffron", CategoryId = 2 },
                     //        new Ingredient() { Name = "Flour", CategoryId = 3 },
                     //        new Ingredient() { Name = "Oats", CategoryId = 3 },
-                            new Ingredient() { Name = "Beef", CategoryId = 36 },
-                            new Ingredient() { Name = "Chicken", CategoryId = 36 },
-                            new Ingredient() { Name = "Turkey", CategoryId = 36 },
-                            new Ingredient() { Name = "Ham", CategoryId = 36 },
-                            new Ingredient() { Name = "Lamb", CategoryId = 36 },
+                            new Ingredient() { Name = "Beef", Category = category },
+                            new Ingredient() { Name = "Chicken", Category = category },
+                            new Ingredient() { Name = "Turkey", Category = category },
+                            new Ingredient() { Name = "Ham", Category = category },
+                            new Ingredient() { Name = "Lamb", Category = category },
                     //        new Ingredient() { Name = "Milk", CategoryId = 5 },
                     //        new Ingredient() { Name = "Ricotta Cheese", CategoryId = 5 },
                     //        new Ingredient() { Name = "Yogurt", CategoryId = 5 },
