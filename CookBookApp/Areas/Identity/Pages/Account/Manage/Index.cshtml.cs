@@ -62,7 +62,7 @@ namespace CookBookApp.Areas.Identity.Pages.Account.Manage
 
             public string Description { get; set; }
 
-            public File File { get; set; }
+            public ProfilePicture File { get; set; }
         }
 
         public async Task<IActionResult> OnGetAsync()
@@ -80,10 +80,10 @@ namespace CookBookApp.Areas.Identity.Pages.Account.Manage
             var location = await _userManager.GetLocationAsync(user);
             var gender = await _userManager.GetGenderAsync(user);
             var description = await _userManager.GetDescriptionAsync(user);
-            var file = context.Files.Where(f => f.UserId == user.Id).FirstOrDefault(f => f.FileType == FileType.Avatar);
+            var picture = context.ProfilePictures.Where(f => f.UserId == user.Id).FirstOrDefault(f => f.FileType == FileType.Avatar);
 
-            if(file != null)
-                ViewData["AvatarPath"] = "data:image/jpeg;base64," + Convert.ToBase64String(file.Content, 0, file.Content.Length);
+            if(picture != null)
+                ViewData["AvatarPath"] = "data:image/jpeg;base64," + Convert.ToBase64String(picture.Content, 0, picture.Content.Length);
 
             Username = userName;
 
@@ -95,7 +95,7 @@ namespace CookBookApp.Areas.Identity.Pages.Account.Manage
                 Location = location,
                 Gender = gender,
                 Description = description,
-                File = file
+                File = picture
             };
 
             IsEmailConfirmed = await _userManager.IsEmailConfirmedAsync(user);
@@ -171,13 +171,13 @@ namespace CookBookApp.Areas.Identity.Pages.Account.Manage
                 }
            }
 
-            var currentAvatar = context.Files.Where(f => f.User == user).SingleOrDefault(f => f.FileType == FileType.Avatar);
+            var currentAvatar = context.ProfilePictures.Where(f => f.User == user).SingleOrDefault(f => f.FileType == FileType.Avatar);
 
             try
             {
                 if (upload != null && upload.Length > 0)
                 {
-                    var avatar = new File
+                    var avatar = new ProfilePicture
                     {
                         FileName = System.IO.Path.GetFileName(upload.FileName),
                         FileType = FileType.Avatar,
@@ -192,7 +192,7 @@ namespace CookBookApp.Areas.Identity.Pages.Account.Manage
 
                     if(currentAvatar != null)
                         context.Remove(currentAvatar);
-                    context.Files.Add(avatar);
+                    context.ProfilePictures.Add(avatar);
  
                 }
             }
