@@ -3,11 +3,15 @@
     ViewData["Title"] = "Details";
 }
 
-
     <div class="container">
 
         <h1>@Model.Recipe.Name</h1>
-        <button class="btn btn-success">Save</button>
+
+        <button type='button' class="btn btn-warning"
+                data-button='{"recipeId": "@Model.Recipe.Id", "userId": "@Model.Recipe.UserId"}'>
+                Favourite
+        </button>
+
         <h5>Description:</h5>
         <p>@Model.Recipe.ShortDescription</p>
 
@@ -36,3 +40,40 @@
 
     </div>
 
+@section  Scripts  {
+<script>
+    $(document).ready(function () {
+        //<i class="far fa-heart"></i><i class="fas fa-heart">
+
+        // TODO - Display correct FA icon according to the status (presence) in FavouriteRecipes table
+
+        $('button').click(function(){
+            var data = $.parseJSON($(this).attr('data-button'));
+            var recipeId = data.recipeId;
+            var userId = data.userId;
+
+                $.ajax({
+                    url: "/api/favouriterecipes/",
+                    method: "POST",
+                    data: { UserId: userId, RecipeId: recipeId },
+                    success: function (data) {
+                        alert("Added to favourite");
+                    },
+                    error: function (response)
+                    {
+                        $.ajax({
+                            url: "/api/favouriterecipes/" + userId + "/" + recipeId,
+                            method: "DELETE",
+                            success: function () {
+                                alert("Deleted from favourite");
+                            }
+                        });
+                    }
+                });
+
+
+        });
+
+    });
+</script>
+}

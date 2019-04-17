@@ -19,6 +19,8 @@ namespace CookBookApp.Models
         public string Description { get; set; }
 
         public ICollection<File> Files { get; set; }
+
+        public ICollection<FavouriteRecipe> FavouriteRecipes { get; set; }
     }
 
     public enum Gender

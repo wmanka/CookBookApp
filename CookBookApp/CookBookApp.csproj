@@ -16,6 +16,8 @@
     <Compile Remove="Data\Migrations\20190411143805_ChangeMealAndIngredientsCategoriesConventions.Designer.cs" />
     <Compile Remove="Data\Migrations\20190413130602_AddFilesTable.cs" />
     <Compile Remove="Data\Migrations\20190413130602_AddFilesTable.Designer.cs" />
+    <Compile Remove="Data\Migrations\20190416200713_AddFavouriteRecipesTable.cs" />
+    <Compile Remove="Data\Migrations\20190416200713_AddFavouriteRecipesTable.Designer.cs" />
   </ItemGroup>
 
 
