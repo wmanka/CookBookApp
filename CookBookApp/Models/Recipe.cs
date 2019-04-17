@@ -33,6 +33,8 @@ namespace CookBookApp.Models
         public string UserId { get; set; }
         public ApplicationUser User { get; set; }
 
+        public RecipePicture Picture { get; set; }
+
         public IEnumerable<IngredientInRecipe> Ingredients { get; set; }
 
         public IEnumerable<FavouriteRecipe> FavouriteRecipes { get; set; }
