@@ -20,6 +20,8 @@ namespace CookBookApp.Models
 
         public ICollection<ProfilePicture> Files { get; set; }
 
+        public ICollection<Recipe> Recipes { get; set; }
+
         public ICollection<FavouriteRecipe> FavouriteRecipes { get; set; }
     }
 

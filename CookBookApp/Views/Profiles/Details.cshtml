@@ -1,0 +1,98 @@
+﻿@using Microsoft.AspNetCore.Identity
+
+@model CookBookApp.Models.ViewModels.ProfileDetailsViewModel
+
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
+
+@{
+    ViewData["Title"] = "Profile";
+}
+
+
+    <div class="container">
+        <div class="row">
+            <div class="col-md-4">
+                <h1>Profile Details</h1>
+            </div>
+            <div class="col-md-2">
+                @if (SignInManager.IsSignedIn(User) && Model.User.Id == @UserManager.GetUserId(User))
+                {
+                    <a asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage" class="btn btn-primary">Edit Profile</a>
+                }
+            </div>
+        </div>
+
+
+
+                <div class="row">
+                    <div class="col-md-3">
+                        <img alt="" src="@ViewData["AvatarPath"]" class="img-fluid rounded" style="height:200px;width:200px;" />
+                    </div>
+                    <div class="col-md-3">
+                        <h3>@Model.User.Name</h3>
+                        <p>
+                            @Model.User.Description
+                        </p>
+                        <table class="table table-borderless table-sm">
+                            <tr><td>Username: @Model.User.UserName</td></tr>
+                            <tr><td>Gender: @Model.User.Gender</td></tr>
+                            <tr><td>Location: @Model.User.Location</td></tr>
+                            <tr><td>Joined:</td></tr>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="accordion" id="accordionExample">
+                    <div class="card">
+                        <div class="card-header" id="headingOne">
+                            <h2 class="mb-0">
+                                <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                                    <h5>My Recipes <span class="badge badge-secondary">@Model.User.Recipes.Count</span></h5>
+                                </button>
+                            </h2>
+                        </div>
+
+                        <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#accordionExample">
+                            <div class="card-body">
+                                <partial name="_Recipes" for="User.Recipes">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header" id="headingTwo">
+                            <h2 class="mb-0">
+                                <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                                    <h5>Favourite Recipes <span class="badge badge-secondary">@Model.User.FavouriteRecipes.Count</span></h5>
+                                </button>
+                            </h2>
+                        </div>
+                        <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionExample">
+                            <div class="card-body">
+                                <div class="container mt-3">
+                                    <div class="row">
+                                        <div class="card-deck">
+                                            @foreach (var recipe in @Model.User.FavouriteRecipes)
+                                            {
+                                                <div class="card mb-4" style="min-width: 18rem; max-width: 18rem;">
+                                                    <img class="card-img-top" src="https://placehold.it/280x140/abc" alt="Card image cap">
+                                                    <div class="card-body">
+                                                        <h5 class="card-title">@recipe.Recipe.Name</h5>
+                                                        <p class="card-text">@recipe.Recipe.ShortDescription</p>
+                                                        <a asp-action="Details" asp-controller="Recipes" asp-route-id="@recipe.RecipeId"
+                                                           class="btn btn-info">Details</a>
+                                                    </div>
+                                                    <div class="card-footer">
+                                                        <p class="card-text"><small class="text-muted">Added @recipe.CreatedAt</small></p>
+                                                    </div>
+                                                </div>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
