@@ -11,6 +11,10 @@
                 data-button='{"recipeId": "@Model.Recipe.Id", "userId": "@Model.Recipe.UserId"}'>
                 Favourite
         </button>
+        <div>
+            Created by: 
+            <a asp-controller="Profiles" asp-action="Details" asp-route-id="@Model.Recipe.User.Id">@Model.Recipe.User.UserName</a>
+        </div>
 
         <h5>Description:</h5>
         <p>@Model.Recipe.ShortDescription</p>
@@ -29,10 +33,6 @@
         <p>@Model.Recipe.PreparationTime</p>
         <h5>Preparation Time:</h5>
         <p>@Model.Recipe.DifficultyLevel</p>
-
-        <h5>Created By:</h5>
-        <p>@Model.Recipe.User.UserName at @Model.Recipe.CreatedAt</p>
-        <button class="btn btn-warning">User Profile</button>
 
         <h5>Category:</h5>
         <p>@Model.Recipe.Category.Name</p>
