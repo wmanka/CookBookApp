@@ -1,13 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using CookBookApp.Data;
+﻿using CookBookApp.Data;
 using CookBookApp.Models;
 using CookBookApp.Models.ViewModels;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace CookBookApp.Controllers
 {
@@ -86,25 +85,30 @@ namespace CookBookApp.Controllers
 
         public IActionResult Details(int id)
         {
-            var ingredientsInRecipe = context.IngredientsInRecipes.Where(i => i.RecipeId == id).ToList();
+            var recipe = context.Recipes
+                .Include(r => r.Category)
+                .Include(r => r.User)
+                .Where(r => r.Id == id)
+                .FirstOrDefault();
 
-            var list = new List<IngredientWithQuantity>();
-
-            foreach (var ingredient in ingredientsInRecipe)
+            if (recipe == null)
             {
-                var item = new IngredientWithQuantity()
-                {
-                    Ingredient = context.Ingredients.FirstOrDefault(i => i.Id == ingredient.IngredientId),
-                    Quantity = ingredient.Quantity
-                };
-
-                list.Add(item);
+                return NotFound();
             }
+
+            var ingredients = context.IngredientsInRecipes
+                .Include(i => i.Ingredient)
+                .Where(i => i.RecipeId == id)
+                .Select(ingredient => new IngredientWithQuantity()
+                {
+                    Ingredient = ingredient.Ingredient,
+                    Quantity = ingredient.Quantity
+                });
 
             var vm = new RecipeDetailsViewModel()
             {
                 Recipe = context.Recipes.Include(r => r.Category).Include(r => r.User).FirstOrDefault(r => r.Id == id),
-                Ingredients = list
+                Ingredients = ingredients
             };
 
             return View(vm);
