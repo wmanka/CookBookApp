@@ -13,7 +13,13 @@
         </button>
         <div>
             Created by: 
+            @if (@Model.Recipe.User != null)
+            {
             <a asp-controller="Profiles" asp-action="Details" asp-route-id="@Model.Recipe.User.Id">@Model.Recipe.User.UserName</a>
+            } else
+            {
+                <span>Anonymous</span>
+            }
         </div>
 
         <h5>Description:</h5>
