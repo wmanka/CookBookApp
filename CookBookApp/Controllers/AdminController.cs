@@ -19,5 +19,15 @@ namespace CookBookApp.Controllers
         {
             return View();
         }
+
+        public IActionResult Ingredients()
+        {
+            return View();
+        }
+
+        public IActionResult IngredientsCategories()
+        {
+            return View();
+        }
     }
 }
