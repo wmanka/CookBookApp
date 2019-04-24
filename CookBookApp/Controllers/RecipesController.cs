@@ -58,24 +58,38 @@ namespace CookBookApp.Controllers
         public IActionResult CreateRecipe(CreateRecipeViewModel vm)
         {
             var recipe = vm.Recipe;
-            recipe.CreatedAt = DateTime.Now;
-            recipe.UserId = userManager.GetUserId(User);
 
-            context.Recipes.Add(recipe);
-            context.SaveChanges();
+            if (vm.Recipe.Id == 0)
+            {
+                recipe.CreatedAt = DateTime.Now;
+                recipe.UserId = userManager.GetUserId(User);
 
-            var id = recipe.Id;
+                context.Recipes.Add(recipe);
+                context.SaveChanges();   
+            }
+            else
+            {
+                context.Recipes.Update(recipe);
+
+                var currentIngredients = context.IngredientsInRecipes.Where(i => i.RecipeId == recipe.Id);
+                foreach (var item in currentIngredients)
+                {
+                    context.IngredientsInRecipes.Remove(item);
+                }
+
+                context.SaveChanges();
+            }
 
             foreach (var ingredient in vm.ChosenIngredients)
             {
-                var ing = new IngredientInRecipe()
+                var newIngredient = new IngredientInRecipe()
                 {
                     IngredientId = ingredient.IngredientId,
                     Quantity = ingredient.Quantity,
-                    RecipeId = id
+                    RecipeId = recipe.Id
                 };
 
-                context.IngredientsInRecipes.Add(ing);
+                context.IngredientsInRecipes.Add(newIngredient);
             }
 
             context.SaveChanges();
@@ -112,6 +126,29 @@ namespace CookBookApp.Controllers
             };
 
             return View(vm);
+        }
+
+        public IActionResult Edit(int id)
+        {
+            var vm = new CreateRecipeViewModel()
+            {
+                Ingredients = context.Ingredients.ToList(),
+                Recipe = context.Recipes.FirstOrDefault(r => r.Id == id),
+                MealCategories = context.Categories.ToList(),
+                ChosenIngredients = context.IngredientsInRecipes.Where(i => i.RecipeId == id),
+                MealCategoryId = context.Recipes.FirstOrDefault(r => r.Id == id).Category.Id
+            };
+
+            return View("Create", vm);
+        }
+
+        public IActionResult Delete(int id)
+        {
+            var recipe = context.Recipes.FirstOrDefault(r => r.Id == id);
+            context.Recipes.Remove(recipe);
+            context.SaveChanges();
+
+            return RedirectToAction("Index", "Home");
         }
 
     }

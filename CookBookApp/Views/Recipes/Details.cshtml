@@ -10,49 +10,59 @@
 @inject UserManager<ApplicationUser> UserManager
 
 
-<div class="container">
+    <div class="container">
 
-    <h1>@Model.Recipe.Name</h1>
+        <h1>@Model.Recipe.Name</h1>
 
-    <button type='button' class="btn btn-warning"
-            data-button='{"recipeId": "@Model.Recipe.Id", "userId": "@UserManager.GetUserId(User)"}'>
-        Favourite
-    </button>
-    <div>
-        Created by:
-        @if (@Model.Recipe.User != null)
+        @if (SignInManager.IsSignedIn(User))
         {
-            <a asp-controller="Profiles" asp-action="Details" asp-route-id="@Model.Recipe.User.Id">@Model.Recipe.User.UserName</a>
+            <button type='button' class="btn btn-warning"
+                    data-button='{"recipeId": "@Model.Recipe.Id", "userId": "@UserManager.GetUserId(User)"}'>
+                Favourite
+            </button>
+
+            @if (Model.Recipe.UserId == UserManager.GetUserId(User))
+            {
+                <a asp-controller="Recipes" asp-action="Edit" asp-route-id="@Model.Recipe.Id" class="btn btn-info">Edit</a>
+                <a asp-controller="Recipes" asp-action="Delete" asp-route-id="@Model.Recipe.Id" class="btn btn-danger">Delete</a>
+            }
         }
-        else
-        {
-            <span>Anonymous</span>
-        }
+
+        <div>
+            Created by:
+            @if (@Model.Recipe.User != null)
+            {
+                <a asp-controller="Profiles" asp-action="Details" asp-route-id="@Model.Recipe.User.Id">@Model.Recipe.User.UserName</a>
+            }
+            else
+            {
+                <span>Anonymous</span>
+            }
+        </div>
+
+        <h5>Description:</h5>
+        <p>@Model.Recipe.ShortDescription</p>
+
+        <h5>Ingredients:</h5>
+        <ul class="list-group col-md-6">
+            @foreach (var item in @Model.Ingredients)
+            {
+                <li class="list-group-item">@item.Ingredient.Name - @item.Quantity</li>
+            }
+        </ul>
+
+        <h5>Instructions:</h5>
+        <p>@Model.Recipe.Instructions</p>
+        <h5>Difficulty Level:</h5>
+        <p>@Model.Recipe.PreparationTime</p>
+        <h5>Preparation Time:</h5>
+        <p>@Model.Recipe.DifficultyLevel</p>
+
+        <h5>Category:</h5>
+        <p>@Model.Recipe.Category.Name</p>
+
+
     </div>
-
-    <h5>Description:</h5>
-    <p>@Model.Recipe.ShortDescription</p>
-
-    <h5>Ingredients:</h5>
-    <ul class="list-group col-md-6">
-        @foreach (var item in @Model.Ingredients)
-        {
-            <li class="list-group-item">@item.Ingredient.Name - @item.Quantity</li>
-        }
-    </ul>
-
-    <h5>Instructions:</h5>
-    <p>@Model.Recipe.Instructions</p>
-    <h5>Difficulty Level:</h5>
-    <p>@Model.Recipe.PreparationTime</p>
-    <h5>Preparation Time:</h5>
-    <p>@Model.Recipe.DifficultyLevel</p>
-
-    <h5>Category:</h5>
-    <p>@Model.Recipe.Category.Name</p>
-
-
-</div>
 
 @section Scripts  {
     <script>
