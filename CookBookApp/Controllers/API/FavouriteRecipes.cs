@@ -37,21 +37,19 @@ namespace CookBookApp.Controllers.API
             var frFromDb = context.FavouriteRecipes.
                 FirstOrDefault(fr => fr.RecipeId == favouriteRecipe.RecipeId && fr.UserId == favouriteRecipe.UserId);
 
-
-            favouriteRecipe.CreatedAt = DateTime.Now;
-
-            try
+            if (frFromDb == null)
             {
+                favouriteRecipe.CreatedAt = DateTime.Now;
                 context.FavouriteRecipes.Add(favouriteRecipe);
                 context.SaveChanges();
+                return Ok();
             }
-            catch (Exception ex)
+            else
             {
                 Response.StatusCode = (int)HttpStatusCode.MethodNotAllowed;
                 return Json("Error - item is already marked as favourite");
-            }
 
-            return Ok();
+            }
         }
 
         // DELETE api/favouriterecipes/a6af761b-3f53-4bc0-a7a4-99fa86ef5d51/5

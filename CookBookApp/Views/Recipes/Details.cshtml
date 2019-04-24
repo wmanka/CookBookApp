@@ -1,62 +1,70 @@
-﻿@model CookBookApp.Models.ViewModels.RecipeDetailsViewModel
+﻿@using Microsoft.AspNetCore.Identity
+
+@model CookBookApp.Models.ViewModels.RecipeDetailsViewModel
+
 @{
     ViewData["Title"] = "Details";
 }
 
-    <div class="container">
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
 
-        <h1>@Model.Recipe.Name</h1>
 
-        <button type='button' class="btn btn-warning"
-                data-button='{"recipeId": "@Model.Recipe.Id", "userId": "@Model.Recipe.UserId"}'>
-                Favourite
-        </button>
-        <div>
-            Created by: 
-            @if (@Model.Recipe.User != null)
-            {
+<div class="container">
+
+    <h1>@Model.Recipe.Name</h1>
+
+    <button type='button' class="btn btn-warning"
+            data-button='{"recipeId": "@Model.Recipe.Id", "userId": "@UserManager.GetUserId(User)"}'>
+        Favourite
+    </button>
+    <div>
+        Created by:
+        @if (@Model.Recipe.User != null)
+        {
             <a asp-controller="Profiles" asp-action="Details" asp-route-id="@Model.Recipe.User.Id">@Model.Recipe.User.UserName</a>
-            } else
-            {
-                <span>Anonymous</span>
-            }
-        </div>
-
-        <h5>Description:</h5>
-        <p>@Model.Recipe.ShortDescription</p>
-
-        <h5>Ingredients:</h5>
-        <ul class="list-group col-md-6">
-            @foreach (var item in @Model.Ingredients)
-            {
-                <li class="list-group-item">@item.Ingredient.Name - @item.Quantity</li>
-            }
-        </ul>
-
-        <h5>Instructions:</h5>
-        <p>@Model.Recipe.Instructions</p>
-        <h5>Difficulty Level:</h5>
-        <p>@Model.Recipe.PreparationTime</p>
-        <h5>Preparation Time:</h5>
-        <p>@Model.Recipe.DifficultyLevel</p>
-
-        <h5>Category:</h5>
-        <p>@Model.Recipe.Category.Name</p>
-
-
+        }
+        else
+        {
+            <span>Anonymous</span>
+        }
     </div>
 
-@section  Scripts  {
-<script>
-    $(document).ready(function () {
-        //<i class="far fa-heart"></i><i class="fas fa-heart">
+    <h5>Description:</h5>
+    <p>@Model.Recipe.ShortDescription</p>
 
-        // TODO - Display correct FA icon according to the status (presence) in FavouriteRecipes table
+    <h5>Ingredients:</h5>
+    <ul class="list-group col-md-6">
+        @foreach (var item in @Model.Ingredients)
+        {
+            <li class="list-group-item">@item.Ingredient.Name - @item.Quantity</li>
+        }
+    </ul>
 
-        $('button').click(function(){
-            var data = $.parseJSON($(this).attr('data-button'));
-            var recipeId = data.recipeId;
-            var userId = data.userId;
+    <h5>Instructions:</h5>
+    <p>@Model.Recipe.Instructions</p>
+    <h5>Difficulty Level:</h5>
+    <p>@Model.Recipe.PreparationTime</p>
+    <h5>Preparation Time:</h5>
+    <p>@Model.Recipe.DifficultyLevel</p>
+
+    <h5>Category:</h5>
+    <p>@Model.Recipe.Category.Name</p>
+
+
+</div>
+
+@section Scripts  {
+    <script>
+        $(document).ready(function () {
+            //<i class="far fa-heart"></i><i class="fas fa-heart">
+
+            // TODO - Display correct FA icon according to the status (presence) in FavouriteRecipes table
+
+            $('button').click(function () {
+                var data = $.parseJSON($(this).attr('data-button'));
+                var recipeId = data.recipeId;
+                var userId = data.userId;
 
                 $.ajax({
                     url: "/api/favouriterecipes/",
@@ -65,8 +73,7 @@
                     success: function (data) {
                         alert("Added to favourite");
                     },
-                    error: function (response)
-                    {
+                    error: function (response) {
                         $.ajax({
                             url: "/api/favouriterecipes/" + userId + "/" + recipeId,
                             method: "DELETE",
@@ -76,10 +83,7 @@
                         });
                     }
                 });
-
-
+            });
         });
-
-    });
-</script>
+    </script>
 }
