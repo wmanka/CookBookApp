@@ -49,6 +49,7 @@ namespace CookBookApp
                 .AddEntityFrameworkStores<ApplicationDbContext>();
 
             services.AddTransient<ICategoryService, CategoryService>();
+            services.AddTransient<IProfilePictureService, ProfilePictureService>();
 
             services.AddMvc()
                 .AddNewtonsoftJson();

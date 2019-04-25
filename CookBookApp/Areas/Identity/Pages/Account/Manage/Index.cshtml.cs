@@ -6,6 +6,8 @@ using System.Text.Encodings.Web;
 using System.Threading.Tasks;
 using CookBookApp.Data;
 using CookBookApp.Models;
+using CookBookApp.Services;
+using CookBookApp.Services.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
@@ -20,18 +22,18 @@ namespace CookBookApp.Areas.Identity.Pages.Account.Manage
         private readonly ApplicationUserManager _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly IEmailSender _emailSender;
-        private readonly ApplicationDbContext context;
+        private readonly IProfilePictureService _profilePictureService;
 
         public IndexModel(
             ApplicationUserManager userManager,
             SignInManager<ApplicationUser> signInManager,
             IEmailSender emailSender,
-            ApplicationDbContext context)
+            IProfilePictureService profilePictureService)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _emailSender = emailSender;
-            this.context = context;
+            _profilePictureService = profilePictureService;
         }
 
         public string Username { get; set; }
@@ -80,12 +82,10 @@ namespace CookBookApp.Areas.Identity.Pages.Account.Manage
             var location = await _userManager.GetLocationAsync(user);
             var gender = await _userManager.GetGenderAsync(user);
             var description = await _userManager.GetDescriptionAsync(user);
-            var picture = context.ProfilePictures.Where(f => f.UserId == user.Id).FirstOrDefault(f => f.FileType == FileType.Avatar);
+            var picture = _profilePictureService.GetUserAvatar(user.Id);
 
-            if(picture != null)
+            if (picture != null)
                 ViewData["AvatarPath"] = "data:image/jpeg;base64," + Convert.ToBase64String(picture.Content, 0, picture.Content.Length);
-
-            Username = userName;
 
             Input = new InputModel
             {
@@ -171,8 +171,7 @@ namespace CookBookApp.Areas.Identity.Pages.Account.Manage
                 }
            }
 
-            var currentAvatar = context.ProfilePictures.Where(f => f.User == user).SingleOrDefault(f => f.FileType == FileType.Avatar);
-
+            var currentAvatar = _profilePictureService.GetUserAvatar(user.Id);
             try
             {
                 if (upload != null && upload.Length > 0)
@@ -191,17 +190,15 @@ namespace CookBookApp.Areas.Identity.Pages.Account.Manage
                     }
 
                     if(currentAvatar != null)
-                        context.Remove(currentAvatar);
-                    context.ProfilePictures.Add(avatar);
- 
+                        _profilePictureService.Remove(currentAvatar);
+
+                    _profilePictureService.Add(avatar);
                 }
             }
             catch (RetryLimitExceededException)
             {
                 ModelState.AddModelError("", "Unable to save changes.");
             }  
-
-            context.SaveChanges();
 
             await _signInManager.RefreshSignInAsync(user);
             StatusMessage = "Your profile has been updated";
