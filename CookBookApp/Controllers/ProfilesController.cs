@@ -26,6 +26,7 @@ namespace CookBookApp.Controllers
             var user = userManager.Users
                 .Include(u => u.Recipes).Include(u => u.Files)
                 .Include(u => u.FavouriteRecipes)
+                .ThenInclude(fr => fr.Recipe)
                 .FirstOrDefault(u => u.Id == id);
 
             var picture = context.ProfilePictures.Where(p => p.UserId == user.Id)

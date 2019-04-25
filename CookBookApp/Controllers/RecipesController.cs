@@ -119,10 +119,22 @@ namespace CookBookApp.Controllers
                     Quantity = ingredient.Quantity
                 });
 
+            var isFavouritedByCurrentUser = false;
+
+            var currentUserId = userManager.GetUserId(User);
+            var favouritedRecipes = context.FavouriteRecipes
+                .FirstOrDefault(fr => fr.RecipeId == recipe.Id && fr.UserId == currentUserId);
+
+            if (favouritedRecipes != null)
+            {
+                isFavouritedByCurrentUser = true;
+            }
+
             var vm = new RecipeDetailsViewModel()
             {
                 Recipe = context.Recipes.Include(r => r.Category).Include(r => r.User).FirstOrDefault(r => r.Id == id),
-                Ingredients = ingredients
+                Ingredients = ingredients,
+                IsFavouritedByCurrentUser = isFavouritedByCurrentUser
             };
 
             return View(vm);
