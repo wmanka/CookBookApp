@@ -15,16 +15,14 @@ namespace CookBookApp.Controllers
     {
         private readonly ICategoryService categoryService;
 
-        public CategoriesController(ICategoryService categoryService)
-        {
-            this.categoryService = categoryService;
-        }
+        public CategoriesController(ICategoryService categoryService) => this.categoryService = categoryService;
 
         // GET: api/categories
         [HttpGet]
         public IActionResult Get()
         {
             var result = categoryService.GetCategories().ToList();
+
             return Ok(result);
         }
 
@@ -35,7 +33,8 @@ namespace CookBookApp.Controllers
             var result = categoryService.GetCategory(id);
 
             if (result == null) return NotFound();
-            else return Ok(result);
+
+            return Ok(result);
         }
 
         // POST api/categories
@@ -50,7 +49,8 @@ namespace CookBookApp.Controllers
             };
 
             categoryService.Add(finalCategory);
-            return CreatedAtRoute("GetCategory", new { id = finalCategory.Id }, finalCategory); // Set Custom Name Parameter for HttpGet!
+
+            return CreatedAtRoute("GetCategory", new { id = finalCategory.Id }, finalCategory);
         }
 
         // PUT api/categories/5
@@ -64,13 +64,13 @@ namespace CookBookApp.Controllers
 
             var result = categoryService.GetCategory(id);
 
-            if (result == null) return NotFound();
+            if (result == null)
+                return NotFound();
 
             result.Name = category.Name;
             categoryService.Update(result);
 
             return NoContent();
-
         }
 
         // DELETE api/categories/5
@@ -79,11 +79,12 @@ namespace CookBookApp.Controllers
         {
             var category = categoryService.GetCategory(id);
 
-            if (category == null) return NotFound();
-            else categoryService.Remove(category);
+            if (category == null)
+                return NotFound();
+
+            categoryService.Remove(category);
 
             return NoContent();
-
         }
     }
 }

@@ -75,7 +75,7 @@ namespace CookBookApp.Areas.Identity.Pages.Account.Manage
                 return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
             }
 
-            var userName = await _userManager.GetUserNameAsync(user);
+            //var userName = await _userManager.GetUserNameAsync(user);
             var email = await _userManager.GetEmailAsync(user);
             var phoneNumber = await _userManager.GetPhoneNumberAsync(user);
             var name = await _userManager.GetNameAsync(user);
@@ -85,7 +85,10 @@ namespace CookBookApp.Areas.Identity.Pages.Account.Manage
             var picture = _profilePictureService.GetUserAvatar(user.Id);
 
             if (picture != null)
-                ViewData["AvatarPath"] = "data:image/jpeg;base64," + Convert.ToBase64String(picture.Content, 0, picture.Content.Length);
+            {
+                ViewData["AvatarPath"] = "data:image/jpeg;base64," +
+                    Convert.ToBase64String(picture.Content, 0, picture.Content.Length);
+            }
 
             Input = new InputModel
             {
@@ -169,7 +172,18 @@ namespace CookBookApp.Areas.Identity.Pages.Account.Manage
                     var userId = await _userManager.GetUserIdAsync(user);
                     throw new InvalidOperationException($"Unexpected error occurred setting location for user with ID '{userId}'.");
                 }
-           }
+            }
+
+            var gender = await _userManager.GetGenderAsync(user);
+            if (Input.Gender != gender)
+            {
+                var setGenderResult = await _userManager.SetGenderAsync(user, Input.Gender);
+                if (!setGenderResult.Succeeded)
+                {
+                    var userId = await _userManager.GetUserIdAsync(user);
+                    throw new InvalidOperationException($"Unexpected error occurred setting location for user with ID '{userId}'.");
+                }
+            }
 
             var currentAvatar = _profilePictureService.GetUserAvatar(user.Id);
             try

@@ -13,10 +13,7 @@ namespace CookBookApp.Services
     {
         private readonly ApplicationDbContext Context;
 
-        public ProfilePictureService(ApplicationDbContext context)
-        {
-            Context = context;
-        }
+        public ProfilePictureService(ApplicationDbContext context) => Context = context;
 
         public void Add(ProfilePicture picture)
         {
@@ -26,7 +23,9 @@ namespace CookBookApp.Services
 
         public ProfilePicture GetUserAvatar(string userId)
         {
-            var avatar = Context.ProfilePictures.Where(f => f.UserId == userId).FirstOrDefault(f => f.FileType == FileType.Avatar);
+            var avatar = Context.ProfilePictures
+                .Where(f => f.UserId == userId)
+                .FirstOrDefault(f => f.FileType == FileType.Avatar);
             return avatar;
         }
 

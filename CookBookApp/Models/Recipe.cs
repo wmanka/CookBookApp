@@ -15,11 +15,13 @@ namespace CookBookApp.Models
         [Required]
         public string Name { get; set; }
 
+        [Display(Name = "Short Description")]
         public string ShortDescription { get; set; }
 
         [Required]
         public string Instructions { get; set; }
 
+        [Display(Name = "Preparation Time")]
         public string PreparationTime { get; set; }
 
         [EnumDataType(typeof(DifficultyLevel))]

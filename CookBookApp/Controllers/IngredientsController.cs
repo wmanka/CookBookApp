@@ -13,18 +13,15 @@ namespace CookBookApp.Controllers
     [Route("api/ingredients")]
     public class IngredientsController : Controller
     {
-        private readonly ApplicationDbContext context;
+        private readonly ApplicationDbContext Context;
 
-        public IngredientsController(ApplicationDbContext context)
-        {
-            this.context = context;
-        }
+        public IngredientsController(ApplicationDbContext context) => Context = context;
 
         // GET: api/ingredients
         [HttpGet]
         public IActionResult Get()
         {
-            var ingredients = context.Ingredients.OrderByDescending(i => i.Name).Include(i => i.Category).ToList();
+            var ingredients = Context.Ingredients.OrderByDescending(i => i.Name).Include(i => i.Category).ToList();
 
             return Ok(ingredients);
         }
@@ -33,7 +30,7 @@ namespace CookBookApp.Controllers
         [HttpGet("{id}", Name = "GetIngredient")]
         public IActionResult Get(int id)
         {
-            var ingredient = context.Ingredients.FirstOrDefault(i => i.Id == id);
+            var ingredient = Context.Ingredients.FirstOrDefault(i => i.Id == id);
 
             if (ingredient == null)
                 return NotFound();
@@ -55,9 +52,10 @@ namespace CookBookApp.Controllers
                 Category = ingredient.Category
             };
 
-            context.Ingredients.Add(finalIngredient);
-            context.SaveChanges();
-            return CreatedAtRoute("GetIngredient", new { id = finalIngredient.Id }, finalIngredient); // Set Custom Name Parameter for HttpGet!
+            Context.Ingredients.Add(finalIngredient);
+            Context.SaveChanges();
+
+            return CreatedAtRoute("GetIngredient", new { id = finalIngredient.Id }, finalIngredient);
         }
 
         //PUT api/ingredients/5
@@ -69,7 +67,7 @@ namespace CookBookApp.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var ingredientFromDb = context.Ingredients.FirstOrDefault(i => i.Id == id);
+            var ingredientFromDb = Context.Ingredients.FirstOrDefault(i => i.Id == id);
 
             if (ingredientFromDb == null) return NotFound();
 
@@ -77,8 +75,8 @@ namespace CookBookApp.Controllers
             ingredientFromDb.CategoryId = ingredient.CategoryId;
             ingredientFromDb.Description = ingredient.Description;
 
-            context.Ingredients.Update(ingredientFromDb);
-            context.SaveChanges();
+            Context.Ingredients.Update(ingredientFromDb);
+            Context.SaveChanges();
 
             return NoContent();
         }
@@ -87,13 +85,12 @@ namespace CookBookApp.Controllers
         [HttpDelete("{id}")]
         public IActionResult Delete(int id)
         {
-            var ingredient = context.Ingredients.FirstOrDefault(i => i.Id == id);
+            var ingredient = Context.Ingredients.FirstOrDefault(i => i.Id == id);
 
-            if (ingredient == null)
-                return NotFound();
+            if (ingredient == null) return NotFound();
 
-            context.Ingredients.Remove(ingredient);
-            context.SaveChanges();
+            Context.Ingredients.Remove(ingredient);
+            Context.SaveChanges();
 
             return NoContent();
         }

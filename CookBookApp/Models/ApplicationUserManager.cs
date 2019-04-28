@@ -28,14 +28,17 @@ namespace CookBookApp.Models
         {
             return Task.FromResult(user.Name);
         }
+
         public virtual Task<string> GetLocationAsync(ApplicationUser user)
         {
             return Task.FromResult(user.Location);
         }
+
         public virtual Task<string> GetDescriptionAsync(ApplicationUser user)
         {
             return Task.FromResult(user.Description);
         }
+
         public virtual Task<Gender> GetGenderAsync(ApplicationUser user)
         {
             return Task.FromResult(user.Gender);
@@ -49,6 +52,7 @@ namespace CookBookApp.Models
 
             return Task.FromResult(IdentityResult.Success);
         }
+
         public virtual Task<IdentityResult> SetLocationAsync(ApplicationUser user, string location)
         {
             var u = context.Users.FirstOrDefault(u => u.Id == user.Id);   
@@ -57,6 +61,7 @@ namespace CookBookApp.Models
 
             return Task.FromResult(IdentityResult.Success);
         }
+
         public virtual Task<IdentityResult> SetGenderAsync(ApplicationUser user, Gender gender)
         {
             var u = context.Users.FirstOrDefault(u => u.Id == user.Id);
@@ -65,6 +70,7 @@ namespace CookBookApp.Models
 
             return Task.FromResult(IdentityResult.Success);
         }
+
         public virtual Task<IdentityResult> SetDescriptionAsync(ApplicationUser user, string description)
         {
             var u = context.Users.FirstOrDefault(u => u.Id == user.Id);

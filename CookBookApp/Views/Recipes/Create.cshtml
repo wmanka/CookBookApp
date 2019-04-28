@@ -18,37 +18,39 @@
     </div>
 
     <div class="form-group">
-        <label asp-for="@Model.Recipe.ShortDescription"></label>
-        <input id="inputDescription" asp-for="@Model.Recipe.ShortDescription" class="form-control" />
-        <span asp-validation-for="@Model.Recipe.ShortDescription" class="text-danger"></span>
-    </div>
-
-    <div class="form-group">
-        <label asp-for="@Model.Recipe.PreparationTime"></label>
-        <input id="inputPreparationTime" asp-for="@Model.Recipe.PreparationTime" class="form-control" />
-        <span asp-validation-for="@Model.Recipe.PreparationTime" class="text-danger"></span>
-    </div>
-
-    <div class="form-group">
-        <label asp-for="@Model.Recipe.DifficultyLevel"></label>
-        <select id="difficultyLevelDropdown"
-                asp-for="@Model.Recipe.DifficultyLevel" asp-items="Html.GetEnumSelectList<DifficultyLevel>()" class="form-control"></select>
-        <span asp-validation-for="@Model.Recipe.DifficultyLevel" class="text-danger"></span>
-    </div>
-
-    <div class="form-group">
-        <label asp-for="@Model.Recipe.Instructions"></label>
-        <textarea id="inputInstructions" asp-for="@Model.Recipe.Instructions" class="form-control" rows="6"></textarea>
-        <span asp-validation-for="@Model.Recipe.Instructions" class="text-danger"></span>
-    </div>
-
-    <div class="form-group">
         <label asp-for="@Model.MealCategoryId" class="control-label"></label>
         <select id="mealCategoryDropdown"
                 asp-for="@Model.MealCategoryId"
                 asp-items="@(new SelectList(Model.MealCategories,"Id","Name"))"
                 class="form-control"></select>
         <span asp-validation-for="@Model.MealCategoryId" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="@Model.Recipe.ShortDescription"></label>
+        <textarea id="inputDescription" asp-for="@Model.Recipe.ShortDescription" class="form-control" cols="10" rows="2"></textarea>
+        <span asp-validation-for="@Model.Recipe.ShortDescription" class="text-danger"></span>
+    </div>
+
+    <div class="row">
+        <div class="form-group col-md-6">
+            <label asp-for="@Model.Recipe.PreparationTime"></label>
+            <input id="inputPreparationTime" asp-for="@Model.Recipe.PreparationTime" class="form-control" />
+            <span asp-validation-for="@Model.Recipe.PreparationTime" class="text-danger"></span>
+        </div>
+
+        <div class="form-group col-md-6">
+            <label asp-for="@Model.Recipe.DifficultyLevel"></label>
+            <select id="difficultyLevelDropdown"
+                    asp-for="@Model.Recipe.DifficultyLevel" asp-items="Html.GetEnumSelectList<DifficultyLevel>()" class="form-control"></select>
+            <span asp-validation-for="@Model.Recipe.DifficultyLevel" class="text-danger"></span>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="@Model.Recipe.Instructions"></label>
+        <textarea id="inputInstructions" asp-for="@Model.Recipe.Instructions" class="form-control" rows="6"></textarea>
+        <span asp-validation-for="@Model.Recipe.Instructions" class="text-danger"></span>
     </div>
 
     <div class="form-group">
@@ -73,15 +75,16 @@
     </div>
 
     <div class="form-group">
-        <input type="button" id="btnPost" value="Create" class="btn btn-primary" />
+        <input type="button" id="btnPost" value="Submit" class="btn btn-primary" />
     </div>
 </form>
 
 
 @section Scripts  {
-    <script>
+<script>
 
-        var currentId = @Model.Recipe.Id;
+    $(function () {
+            var currentId = @Model.Recipe.Id;
 
         var ChosenIngredients = new Array();
 
@@ -89,17 +92,27 @@
         {
             @foreach (var ingredient in Model.ChosenIngredients.ToList())
             {
-                @:var ingredientInRecipe = new Object();
-                @:ingredientInRecipe.IngredientId = @ingredient.IngredientId;
-                @:ingredientInRecipe.Quantity = "@ingredient.Quantity";
-                @:ChosenIngredients.push(ingredientInRecipe);
-
-                @:$('#ingredientsTable').append("<tr id=" + @ingredient.IngredientId + ">" +
-                @:       "<td>" + "@ingredient.Ingredient.Name" + "</td>" +
-                @:        "<td>" + "@ingredient.Quantity" + "</td>" +
-                @:        "<td><input id='btnRemoveIngredient' type='button' value='delete' onclick='Remove("+ @ingredient.IngredientId +")' class='btn btn-danger' data-button=" + @ingredient.IngredientId +"/></td>" +
-                @:        "</tr>").hide().fadeIn(500);
+                @:AppendAddedIngredient(@ingredient.IngredientId, "@ingredient.Ingredient.Name", "@ingredient.Quantity");
             }
+        }
+
+        function AppendAddedIngredient(id, name, quantity) {
+            var ingredientInRecipe = new Object();
+            ingredientInRecipe.IngredientId = id;
+            ingredientInRecipe.Quantity = quantity;
+            ChosenIngredients.push(ingredientInRecipe);
+
+            AppendToTable(id, name, quantity);
+        }
+
+        function AppendToTable(id, name, quantity) {
+            $('#ingredientsTable').append("<tr id=" + id + ">" +
+                "<td>" + name + "</td>" +
+                "<td>" + quantity + "</td>" +
+                "<td><input id='btnRemoveIngredient' type='button' value='delete' onclick='Remove(" + id + ")' class='btn btn-danger' data-button=" + id + "/></td>" +
+                "</tr>");
+
+                $('#ingredientsTable tr#' + id).hide().fadeIn(300);
         }
 
         $("#btn-add-ingredient").click(function () {
@@ -112,27 +125,18 @@
 
                 var isAlreadyInArray = false;
 
-                var found = $.map(ChosenIngredients, function(val) {
+                $.map(ChosenIngredients, function(val) {
                     if (val.IngredientId == id) {
-                        alert("You've aleady added this item");
+                        toastr.error("You've already added this ingredient!");
                         isAlreadyInArray = true;
                     }
                 });
 
-                if (isAlreadyInArray == false) {
-                    var l = ChosenIngredients.push(ingredientInRecipe);
-                    console.log(ChosenIngredients[l - 1]);
-
-                    // TODO Fix - fade out just one tr element
-
-                    $('#ingredientsTable').append("<tr id=" + ingredientInRecipe.IngredientId + ">" +
-                        "<td>" + ingredientName + "</td>" +
-                        "<td>" + ingredientInRecipe.Quantity + "</td>" +
-                        "<td><input id='btnRemoveIngredient' type='button' value='delete' onclick='Remove("+ ingredientInRecipe.IngredientId +")' class='btn btn-danger' data-button=" + ingredientInRecipe.IngredientId +"/></td>" +
-                        "</tr>").hide().fadeIn(500);
+                if (!isAlreadyInArray) {
+                    ChosenIngredients.push(ingredientInRecipe);
+                    AppendToTable(ingredientInRecipe.IngredientId, ingredientName, ingredientInRecipe.Quantity);
                 }
             });
-
 
         function Remove(id) {
 
@@ -169,13 +173,13 @@
                 type: "POST",
                 url: url,
                 data: data,
+                dataType: dataType,
                 success: function (response) {
                     window.location.href = response.redirectToUrl;
-                },
-                dataType: dataType
+                }
             });
         });
-
-    </script>
+    });
+</script>
 }
 

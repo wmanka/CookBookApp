@@ -20,18 +20,8 @@
         </div>
     </li>
     <li class="nav-item">
-        @* TODO Link this a to list most popular recipes*@
         <a asp-action="Index" asp-controller="Recipes" asp-route-category="recentlyAdded" class="nav-link">Most Popular</a>
     </li>
 </ul>
 
 <partial name="_Recipes" for="Recipes">
-
-@*@await Html.PartialAsync("_Recipes", Model.Recipes)*@
-
-
-@section Scripts  {
-    <script>
-
-    </script>
-}

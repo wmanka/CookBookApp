@@ -2,13 +2,12 @@
 
 @model CookBookApp.Models.ViewModels.RecipeDetailsViewModel
 
-@{
-    ViewData["Title"] = "Details";
-}
-
 @inject SignInManager<ApplicationUser> SignInManager
 @inject UserManager<ApplicationUser> UserManager
 
+@{
+    ViewData["Title"] = "Details";
+}
 
 <div class="container">
 
@@ -16,20 +15,16 @@
 
     @if (SignInManager.IsSignedIn(User))
     {
-        @if (Model.IsFavouritedByCurrentUser == true)
-        {
-            <button name="isFavourited" type='button' class="btn btn-warning"
-                    data-button='{"recipeId": "@Model.Recipe.Id", "userId": "@UserManager.GetUserId(User)"}'>
-                <i class="fas fa-heart"></i>
-            </button>
-        }
-        else
-        {
-            <button name="isFavourited" type='button' class="btn btn-warning"
-                    data-button='{"recipeId": "@Model.Recipe.Id", "userId": "@UserManager.GetUserId(User)"}'>
-                <i class="far fa-heart"></i>
-            </button>
-        }
+        <button name="isFavourited" type='button' class="btn btn-warning" data-button='{"recipeId": "@Model.Recipe.Id", "userId": "@UserManager.GetUserId(User)"}'>
+            @if (Model.IsFavouritedByCurrentUser)
+            {
+                @:<i class="fas fa-heart"></i>
+            }
+            else
+            {
+                @:<i class="far fa-heart"></i>
+            }
+        </button>
 
         @if (Model.Recipe.UserId == UserManager.GetUserId(User))
         {
@@ -40,14 +35,7 @@
 
     <div>
         Created by:
-        @if (@Model.Recipe.User != null)
-        {
-            <a asp-controller="Profiles" asp-action="Details" asp-route-id="@Model.Recipe.User.Id">@Model.Recipe.User.UserName</a>
-        }
-        else
-        {
-            <span>Anonymous</span>
-        }
+        <a asp-controller="Profiles" asp-action="Details" asp-route-id="@Model.Recipe.User.Id">@Model.Recipe.User.UserName</a>
     </div>
 
     <h5>Description:</h5>
@@ -71,38 +59,45 @@
     <h5>Category:</h5>
     <p>@Model.Recipe.Category.Name</p>
 
-
 </div>
 
 @section Scripts  {
     <script>
-        $(document).ready(function () {
+        $(function () {
 
             $('button').click(function () {
                 var data = $.parseJSON($(this).attr('data-button'));
                 var recipeId = data.recipeId;
                 var userId = data.userId;
 
+                AddToFavourite(userId, recipeId);
+            });
+
+            function RemoveFromFavourite(userId, recipeId) {
+                $.ajax({
+                    url: "/api/favouriterecipes/" + userId + "/" + recipeId,
+                    method: "DELETE",
+                    success: function () {
+                        toastr.success('Recipe successfully removed from favourite');
+                        $('[name="isFavourited"]').html('<i class="far fa-heart"></i>');
+                    }
+                });
+            }
+
+            function AddToFavourite(userId, recipeId) {
                 $.ajax({
                     url: "/api/favouriterecipes/",
                     method: "POST",
                     data: { UserId: userId, RecipeId: recipeId },
-                    success: function (data) {
+                    success: function () {
                         toastr.success('Recipe successfully added to favourite');
                         $('[name="isFavourited"]').html('<i class="fas fa-heart"></i>');
                     },
-                    error: function (response) {
-                        $.ajax({
-                            url: "/api/favouriterecipes/" + userId + "/" + recipeId,
-                            method: "DELETE",
-                            success: function () {
-                                toastr.success('Recipe successfully removed from favourite');
-                                $('[name="isFavourited"]').html('<i class="far fa-heart"></i>');
-                            }
-                        });
+                    error: function () {
+                        RemoveFromFavourite(userId, recipeId);
                     }
                 });
-            });
+            }
         });
     </script>
 }

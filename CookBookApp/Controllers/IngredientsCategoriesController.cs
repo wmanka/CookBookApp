@@ -14,10 +14,7 @@ namespace CookBookApp.Controllers
     {
         private readonly ApplicationDbContext context;
 
-        public IngredientsCategoriesController(ApplicationDbContext context)
-        {
-            this.context = context;
-        }
+        public IngredientsCategoriesController(ApplicationDbContext context) => this.context = context;
 
         [HttpGet]
         public IActionResult Get()
@@ -34,7 +31,8 @@ namespace CookBookApp.Controllers
             var result = context.IngredientCategory.FirstOrDefault(ic => ic.Id == id);
 
             if (result == null) return NotFound();
-            else return Ok(result);
+
+            return Ok(result);
         }
     }
 }
