@@ -13,15 +13,15 @@ namespace CookBookApp.Controllers
     [Route("api/categories")]
     public class CategoriesController : Controller
     {
-        private readonly ICategoryService categoryService;
+        private readonly ICategoryService CategoryService;
 
-        public CategoriesController(ICategoryService categoryService) => this.categoryService = categoryService;
+        public CategoriesController(ICategoryService categoryService) => CategoryService = categoryService;
 
         // GET: api/categories
         [HttpGet]
         public IActionResult Get()
         {
-            var result = categoryService.GetCategories().ToList();
+            var result = CategoryService.GetCategories().ToList();
 
             return Ok(result);
         }
@@ -30,7 +30,7 @@ namespace CookBookApp.Controllers
         [HttpGet("{id}", Name = "GetCategory")]
         public IActionResult Get(int id)
         {
-            var result = categoryService.GetCategory(id);
+            var result = CategoryService.GetCategory(id);
 
             if (result == null) return NotFound();
 
@@ -43,12 +43,17 @@ namespace CookBookApp.Controllers
         {
             if (category == null) return BadRequest();
 
+            if(!ModelState.IsValid)
+            {
+                return View();
+            }
+
             var finalCategory = new MealCategory()
             {
                 Name = category.Name
             };
 
-            categoryService.Add(finalCategory);
+            CategoryService.Add(finalCategory);
 
             return CreatedAtRoute("GetCategory", new { id = finalCategory.Id }, finalCategory);
         }
@@ -62,13 +67,13 @@ namespace CookBookApp.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var result = categoryService.GetCategory(id);
+            var result = CategoryService.GetCategory(id);
 
             if (result == null)
                 return NotFound();
 
             result.Name = category.Name;
-            categoryService.Update(result);
+            CategoryService.Update(result);
 
             return NoContent();
         }
@@ -77,12 +82,12 @@ namespace CookBookApp.Controllers
         [HttpDelete("{id}")]
         public IActionResult Delete(int id)
         {
-            var category = categoryService.GetCategory(id);
+            var category = CategoryService.GetCategory(id);
 
             if (category == null)
                 return NotFound();
 
-            categoryService.Remove(category);
+            CategoryService.Remove(category);
 
             return NoContent();
         }
