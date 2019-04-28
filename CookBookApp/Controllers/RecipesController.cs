@@ -1,6 +1,7 @@
 ﻿using CookBookApp.Data;
 using CookBookApp.Models;
 using CookBookApp.Models.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -15,7 +16,8 @@ namespace CookBookApp.Controllers
         private readonly ApplicationDbContext context;
         private readonly UserManager<ApplicationUser> userManager;
 
-        public RecipesController(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
+        public RecipesController(ApplicationDbContext context, 
+            UserManager<ApplicationUser> userManager)
         {
             this.context = context;
             this.userManager = userManager;
@@ -25,13 +27,14 @@ namespace CookBookApp.Controllers
         {
             IEnumerable<Recipe> recipes = null;
 
-
             if(category == "recentlyAdded" || category == null)
             {
                 recipes = context.Recipes.Include(r => r.Category).OrderByDescending(r => r.CreatedAt);
             }
             else
+            {
                 recipes = context.Recipes.Include(r => r.Category).Where(r => r.Category.Name == category);
+            }
 
             var vm = new RecipesIndexViewModel()
             {
@@ -42,6 +45,7 @@ namespace CookBookApp.Controllers
             return View(vm);
         }
 
+        [Authorize]
         public IActionResult Create()
         {
             var vm = new CreateRecipeViewModel()
@@ -55,15 +59,16 @@ namespace CookBookApp.Controllers
             return View(vm);
         }
 
+        [Authorize]
         public IActionResult CreateRecipe(CreateRecipeViewModel vm)
         {
             var recipe = vm.Recipe;
 
+            recipe.CreatedAt = DateTime.Now;
+            recipe.UserId = userManager.GetUserId(User);
+
             if (vm.Recipe.Id == 0)
             {
-                recipe.CreatedAt = DateTime.Now;
-                recipe.UserId = userManager.GetUserId(User);
-
                 context.Recipes.Add(recipe);
                 context.SaveChanges();   
             }
@@ -72,6 +77,7 @@ namespace CookBookApp.Controllers
                 context.Recipes.Update(recipe);
 
                 var currentIngredients = context.IngredientsInRecipes.Where(i => i.RecipeId == recipe.Id);
+
                 foreach (var item in currentIngredients)
                 {
                     context.IngredientsInRecipes.Remove(item);
@@ -122,6 +128,7 @@ namespace CookBookApp.Controllers
             var isFavouritedByCurrentUser = false;
 
             var currentUserId = userManager.GetUserId(User);
+
             var favouritedRecipes = context.FavouriteRecipes
                 .FirstOrDefault(fr => fr.RecipeId == recipe.Id && fr.UserId == currentUserId);
 
@@ -140,6 +147,7 @@ namespace CookBookApp.Controllers
             return View(vm);
         }
 
+        [Authorize]
         public IActionResult Edit(int id)
         {
             var vm = new CreateRecipeViewModel()
@@ -154,14 +162,15 @@ namespace CookBookApp.Controllers
             return View("Create", vm);
         }
 
+        [Authorize]
         public IActionResult Delete(int id)
         {
             var recipe = context.Recipes.FirstOrDefault(r => r.Id == id);
+
             context.Recipes.Remove(recipe);
             context.SaveChanges();
 
             return RedirectToAction("Index", "Home");
         }
-
     }
 }

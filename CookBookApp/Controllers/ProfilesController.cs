@@ -12,30 +12,31 @@ namespace CookBookApp.Controllers
 {
     public class ProfilesController : Controller
     {
-        private readonly ApplicationUserManager userManager;
-        private readonly ApplicationDbContext context;
+        private readonly ApplicationUserManager UserManager;
+        private readonly ApplicationDbContext Context;
 
-        public ProfilesController(ApplicationUserManager userManager, ApplicationDbContext context)
+        public ProfilesController(ApplicationUserManager userManager,
+            ApplicationDbContext context)
         {
-            this.userManager = userManager;
-            this.context = context;
+            UserManager = userManager;
+            Context = context;
         }
 
         public IActionResult Details(string id)
         {
-            var user = userManager.Users
+            var user = UserManager.Users
                 .Include(u => u.Recipes).Include(u => u.Files)
                 .Include(u => u.FavouriteRecipes)
                 .ThenInclude(fr => fr.Recipe)
                 .FirstOrDefault(u => u.Id == id);
 
-            var picture = context.ProfilePictures.Where(p => p.UserId == user.Id)
+            var picture = Context.ProfilePictures.Where(p => p.UserId == user.Id)
                     .FirstOrDefault(f => f.FileType == FileType.Avatar);
 
             var vm = new ProfileDetailsViewModel()
             {
                 User = user,
-                MealCategories = context.Categories.ToList(),
+                MealCategories = Context.Categories.ToList(),
             };
 
             if (picture != null)

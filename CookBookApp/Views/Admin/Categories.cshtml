@@ -28,6 +28,7 @@
     <script>
 
         $(document).ready(function () {
+
             var table = $('#categoriesTable').DataTable({
                 ajax: { url: "/api/categories", dataSrc: "" },
                 "columns": [
@@ -73,7 +74,6 @@
 
             $("#btnAdd").click(function () {
                 var name = $("#name").val();
-                alert("clicked");
 
                 $.ajax({
                     url: "/api/categories/",
