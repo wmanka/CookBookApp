@@ -3,36 +3,70 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CookBookApp.Data;
+using CookBookApp.DTO;
+using CookBookApp.Models;
+using CookBookApp.Services.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CookBookApp.Controllers
 {
     [Route("api/ingredientscategories")]
-    [ApiController]
-    public class IngredientsCategoriesController : ControllerBase
+    public class IngredientsCategoriesController : Controller
     {
-        private readonly ApplicationDbContext context;
+        private readonly IIngredientCategoryService IngredientCategoryService;
 
-        public IngredientsCategoriesController(ApplicationDbContext context) => this.context = context;
+        public IngredientsCategoriesController(IIngredientCategoryService ingredientCategoryService) =>
+            IngredientCategoryService = ingredientCategoryService;        
 
         [HttpGet]
+        // GET: api/ingredientscategories
         public IActionResult Get()
         {
-            var ingredientsCategories = context.IngredientCategory.OrderByDescending(i => i.Name).ToList();
+            var ingredientsCategories = IngredientCategoryService.GetIngredientCategories();
 
             return Ok(ingredientsCategories);
         }
 
         // GET api/ingredientscategories/{id}
-        [HttpGet("{id}")]
+        [HttpGet("{id}", Name = "GetIngredientCategory")]
         public IActionResult Get(int id)
         {
-            var result = context.IngredientCategory.FirstOrDefault(ic => ic.Id == id);
+            var ingredientCategory = IngredientCategoryService.GetIngredientCategory(id);
 
-            if (result == null) return NotFound();
+            if (ingredientCategory == null) return NotFound();
 
-            return Ok(result);
+            return Ok(ingredientCategory);
+        }
+
+        // POST api/ingredientscategories
+        [HttpPost]
+        public IActionResult Post(IngredientCategoryDTO ingredientCategory)
+        {
+            if (ingredientCategory == null) return BadRequest();
+
+            var finalIngredientCategory = new IngredientCategory()
+            {
+                Name = ingredientCategory.Name
+            };
+
+            IngredientCategoryService.Add(finalIngredientCategory);
+
+            return CreatedAtRoute("GetIngredientCategory", new { id = finalIngredientCategory.Id }, finalIngredientCategory);
+        }
+
+
+        [HttpDelete("{id}")]
+        public IActionResult Delete(int id)
+        {
+            var ingredientCategory = IngredientCategoryService.GetIngredientCategory(id);
+
+            if (ingredientCategory == null)
+                return NotFound();
+
+            IngredientCategoryService.Remove(ingredientCategory);
+
+            return NoContent();
         }
     }
 }

@@ -12,5 +12,6 @@ namespace CookBookApp.Services.Interfaces
         void Add(ProfilePicture picture);
         void Remove(ProfilePicture picture);
         ProfilePicture GetUserAvatar(string userId);
+        string GetAvatarPath(ProfilePicture profilePicture);
     }
 }

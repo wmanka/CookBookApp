@@ -84,11 +84,10 @@ namespace CookBookApp.Areas.Identity.Pages.Account.Manage
             var description = await _userManager.GetDescriptionAsync(user);
             var picture = _profilePictureService.GetUserAvatar(user.Id);
 
-            if (picture != null)
-            {
-                ViewData["AvatarPath"] = "data:image/jpeg;base64," +
-                    Convert.ToBase64String(picture.Content, 0, picture.Content.Length);
-            }
+            var path = _profilePictureService.GetAvatarPath(picture);
+
+            if (path != null)
+                ViewData["AvatarPath"] = path;
 
             Input = new InputModel
             {

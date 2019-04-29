@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using CookBookApp.Data;
 using CookBookApp.Models;
 using CookBookApp.Models.ViewModels;
+using CookBookApp.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -14,12 +15,14 @@ namespace CookBookApp.Controllers
     {
         private readonly ApplicationUserManager UserManager;
         private readonly ApplicationDbContext Context;
+        private readonly IProfilePictureService ProfilePictureService;
 
         public ProfilesController(ApplicationUserManager userManager,
-            ApplicationDbContext context)
+            ApplicationDbContext context, IProfilePictureService profilePictureService)
         {
             UserManager = userManager;
             Context = context;
+            ProfilePictureService = profilePictureService;
         }
 
         public IActionResult Details(string id)
@@ -30,17 +33,18 @@ namespace CookBookApp.Controllers
                 .ThenInclude(fr => fr.Recipe)
                 .FirstOrDefault(u => u.Id == id);
 
-            var picture = Context.ProfilePictures.Where(p => p.UserId == user.Id)
-                    .FirstOrDefault(f => f.FileType == FileType.Avatar);
+            var profilePicture = ProfilePictureService.GetUserAvatar(user.Id);
+
+            var path = ProfilePictureService.GetAvatarPath(profilePicture);
+
+            if (path != null)
+                ViewData["AvatarPath"] = path;
 
             var vm = new ProfileDetailsViewModel()
             {
                 User = user,
                 MealCategories = Context.Categories.ToList(),
             };
-
-            if (picture != null)
-                ViewData["AvatarPath"] = "data:image/jpeg;base64," + Convert.ToBase64String(picture.Content, 0, picture.Content.Length);
 
             return View("Details", vm);
         }
