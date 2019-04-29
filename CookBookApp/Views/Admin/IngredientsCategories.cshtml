@@ -1,7 +1,109 @@
-﻿
-@{
-    ViewData["Title"] = "IngredientsCategories";
+﻿@{
+    ViewData["Title"] = "Ingredients Categories";
 }
 
-<h1>Ingredients Categories</h1>
+<div class="container-fluid">
+    <h1>Manage Ingredients Categories</h1>
+
+    <form id="ingredientcategoryForm">
+        <div class="row">
+            <div class="form-group col-md-9">
+                <input id="name" required type="text" class="form-control" placeholder="Add new ingredient category" />
+            </div>
+            <div class="form-group col-md-3">
+                <input type="submit" id="btnAdd" class="btn btn-primary" value="Submit" />
+            </div>
+        </div>
+    </form>
+
+    <table id="ingredientCategoriesTable" class="display">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr></tr>
+        </tbody>
+    </table>
+</div>
+
+@section Scripts {
+
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        $(function () {
+
+            var validator = $("#ingredientcategoryForm").validate({
+                submitHandler: function () {
+
+                    var name = $("#name").val();
+
+                    $.ajax({
+                        url: "/api/ingredientscategories/",
+                        method: "POST",
+                        data: { Name: name },
+                        success: function (data) {
+                            table.rows.add([data]);
+                            table.draw();
+                            toastr.success('Category created successfully');
+                            $("#name").val("");
+
+                            validator.resetForm();
+                        }
+                    });
+
+                    return false;
+                }
+            });
+
+            var table = $('#ingredientCategoriesTable').DataTable({
+                ajax: { url: "/api/ingredientscategories", dataSrc: "" },
+                "columns": [
+                    { "data": "name" },
+                    {
+
+                        "data": "id",
+                        "render": function (data) {
+                            return "<button class='btn btn-link js-delete' data-category-id='" + data + "'>Delete</button>";
+                        }
+                    }
+                ]
+            });
+
+
+            $("#ingredientCategoriesTable").on("click", ".js-delete", function () {
+                var button = $(this);
+
+                $.confirm({
+                    title: 'Are you sure you want to delete this ingredient category?',
+                    content: '',
+                    type: 'red',
+                    buttons: {
+                        ok: {
+                            text: "yes",
+                            btnClass: 'btn-primary',
+                            keys: ['enter'],
+                            action: function () {
+                                $.ajax({
+                                    url: "/api/ingredientscategories/" + button.attr("data-category-id"),
+                                    method: "DELETE",
+                                    success: function () {
+                                        table.row(button.parents("tr")).remove().draw();
+                                        toastr.success('Category removed successfully!');
+                                    }
+                                });
+                            }
+                        },
+                        cancel: () => {
+
+                        }
+                    }
+                });
+            });
+        });
+    </script>
+}
 
