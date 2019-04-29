@@ -3,29 +3,30 @@
 
     <button id="btnNew" class="btn btn-primary">Add new ingredient</button>
     <br /><br />
-        <div id="ingredientform" hidden>
-            <div class="row">
-                <div class="form-group col-md-4">
-                    <input id="name" class="form-control" placeholder="Ingredient name" />
-                </div>
 
-                <div class="form-group col-md-4">
-                    <input id="description" class="form-control" placeholder="Ingredient description" />
-                </div>
+    <form id="ingredientform" hidden>
+        <div class="row">
+            <div class="form-group col-md-4">
+                <input id="name" required type="text" class="form-control" placeholder="Ingredient name" />
             </div>
 
-            <div class="row">
-                <div class="form-group col-md-6">
-                    <select id="categoriesDropdown" class="form-control">
-                        <option class="placeholder" selected disabled value="">Select category</option>
-                    </select>
-                </div>
-
-                <div class="form-group col-md-2">
-                    <input id="btnSubmit" type="button" class="btn btn-warning" value="Submit" />
-                </div>
+            <div class="form-group col-md-4">
+                <input id="description" type="text" class="form-control" placeholder="Ingredient description" />
             </div>
         </div>
+
+        <div class="row">
+            <div class="form-group col-md-6">
+                <select id="categoriesDropdown" required class="form-control">
+                    <option class="placeholder" selected disabled value="">Select category</option>
+                </select>
+            </div>
+
+            <div class="form-group col-md-2">
+                <input id="btnSubmit" type="submit" class="btn btn-warning" value="Submit" />
+            </div>
+        </div>
+    </form>
     <br />
     <table id="ingredientsTable" class="display">
         <thead>
@@ -44,9 +45,51 @@
 
 
 @section Scripts {
+    <partial name="_ValidationScriptsPartial" />
     <script>
 
-        $(document).ready(function () {
+        $(function () {
+
+            var validator = $("#ingredientform").validate({
+                submitHandler: function () {
+
+                    var ingredient = new Object();
+
+                    ingredient.Name = $("#name").val();
+                    ingredient.Description = $("#description").val();
+                    ingredient.CategoryId = $("#categoriesDropdown").find(":selected").val();
+
+                    // Add new category
+                    if (currentId == null) {
+                        $.ajax({
+                            url: "/api/ingredients",
+                            method: "POST",
+                            data: ingredient,
+                            success: function () {
+                                toastr.success('Succefully created new ingredient');
+                                $('#ingredientsTable').DataTable().ajax.reload();
+                                validator.resetForm();
+                            }
+                        });
+                    }
+                    else {  // Edit existing category
+                        $.ajax({
+                            url: "/api/ingredients/" + currentId,
+                            method: "PUT",
+                            data: ingredient,
+                            success: function () {
+                                toastr.success('Succefully edited ingredient');
+                                $('#ingredientsTable').DataTable().ajax.reload();
+                                validator.resetForm();
+                            }
+                        });
+                    }
+
+                    $("#ingredientform").slideUp();
+
+                    return false;
+                }
+            });
 
             $("#ingredientform").hide();
             var currentId = null;
@@ -93,8 +136,8 @@
                                 });
                             }
                         },
-                        cancel: function () {
-                            
+                        cancel: () => {
+
                         }
                     }
                 });
@@ -114,42 +157,6 @@
                 else {
                     currentId = null;
                 }
-            });
-
-            // Add/Edit category - Submit
-            $("#btnSubmit").click(function () {
-
-                var ingredient = new Object();
-
-                ingredient.Name = $("#name").val();
-                ingredient.Description = $("#description").val();
-                ingredient.CategoryId = $("#categoriesDropdown").find(":selected").val();
-
-                // Add new category
-                if (currentId == null) {
-                    $.ajax({
-                        url: "/api/ingredients",
-                        method: "POST",
-                        data: ingredient,
-                        success: function () {
-                            toastr.success('Succefully created new ingredient');
-                            $('#ingredientsTable').DataTable().ajax.reload();
-                        }
-                    });
-                }
-                else {  // Edit existing category
-                    $.ajax({
-                        url: "/api/ingredients/" + currentId,
-                        method: "PUT",
-                        data: ingredient,
-                        success: function () {
-                            toastr.success('Succefully edited ingredient');
-                            $('#ingredientsTable').DataTable().ajax.reload();
-                        }
-                    });
-                }
-
-                $("#ingredientform").slideUp();
             });
 
             // Edit category
