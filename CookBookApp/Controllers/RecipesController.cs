@@ -25,15 +25,11 @@ namespace CookBookApp.Controllers
 
         public IActionResult Index(string category)
         {
-            IEnumerable<Recipe> recipes = null;
+            IEnumerable<Recipe> recipes = context.Recipes.Include(r => r.Category).OrderByDescending(r => r.CreatedAt);
 
-            if(category == "recentlyAdded" || category == null)
-            {
-                recipes = context.Recipes.Include(r => r.Category).OrderByDescending(r => r.CreatedAt);
-            }
-            else
-            {
-                recipes = context.Recipes.Include(r => r.Category).Where(r => r.Category.Name == category);
+            if (!(category == "recentlyAdded" || category == null))
+            { 
+                recipes = recipes.Where(r => r.Category.Name == category);
             }
 
             var vm = new RecipesIndexViewModel()
@@ -67,38 +63,8 @@ namespace CookBookApp.Controllers
             recipe.CreatedAt = DateTime.Now;
             recipe.UserId = userManager.GetUserId(User);
 
-            if (vm.Recipe.Id == 0)
-            {
-                context.Recipes.Add(recipe);
-                context.SaveChanges();   
-            }
-            else
-            {
-                context.Recipes.Update(recipe);
-
-                var currentIngredients = context.IngredientsInRecipes.Where(i => i.RecipeId == recipe.Id);
-
-                foreach (var item in currentIngredients)
-                {
-                    context.IngredientsInRecipes.Remove(item);
-                }
-
-                context.SaveChanges();
-            }
-
-            foreach (var ingredient in vm.ChosenIngredients)
-            {
-                var newIngredient = new IngredientInRecipe()
-                {
-                    IngredientId = ingredient.IngredientId,
-                    Quantity = ingredient.Quantity,
-                    RecipeId = recipe.Id
-                };
-
-                context.IngredientsInRecipes.Add(newIngredient);
-            }
-
-            context.SaveChanges();
+            CreateOrUpdateRecipe(recipe);
+            AddIngredientsToRecipe(vm.ChosenIngredients, recipe.Id);
 
             return Json(new { redirectToUrl = Url.Action("Index", "Home") });
         }
@@ -106,15 +72,10 @@ namespace CookBookApp.Controllers
         public IActionResult Details(int id)
         {
             var recipe = context.Recipes
-                .Include(r => r.Category)
-                .Include(r => r.User)
-                .Where(r => r.Id == id)
-                .FirstOrDefault();
+                .Include(r => r.Category).Include(r => r.User)
+                .FirstOrDefault(r => r.Id == id);
 
-            if (recipe == null)
-            {
-                return NotFound();
-            }
+            if (recipe == null) return NotFound();
 
             var ingredients = context.IngredientsInRecipes
                 .Include(i => i.Ingredient)
@@ -125,23 +86,12 @@ namespace CookBookApp.Controllers
                     Quantity = ingredient.Quantity
                 });
 
-            var isFavouritedByCurrentUser = false;
-
-            var currentUserId = userManager.GetUserId(User);
-
-            var favouritedRecipes = context.FavouriteRecipes
-                .FirstOrDefault(fr => fr.RecipeId == recipe.Id && fr.UserId == currentUserId);
-
-            if (favouritedRecipes != null)
-            {
-                isFavouritedByCurrentUser = true;
-            }
-
             var vm = new RecipeDetailsViewModel()
             {
-                Recipe = context.Recipes.Include(r => r.Category).Include(r => r.User).FirstOrDefault(r => r.Id == id),
+                Recipe = recipe,
                 Ingredients = ingredients,
-                IsFavouritedByCurrentUser = isFavouritedByCurrentUser
+                IsFavouritedByCurrentUser = CheckIfFavouritedByCurrentUser(recipe),
+                NumberOfLikes = context.FavouriteRecipes.Where(fr => fr.RecipeId == id).Count()
             };
 
             return View(vm);
@@ -171,6 +121,57 @@ namespace CookBookApp.Controllers
             context.SaveChanges();
 
             return RedirectToAction("Index", "Home");
+        }
+
+        // PRIVATE METHODS
+
+        private void AddIngredientsToRecipe(IEnumerable<IngredientInRecipe> ingredients, int recipeId)
+        {
+            foreach (var ingredient in ingredients)
+            {
+                var newIngredient = new IngredientInRecipe()
+                {
+                    IngredientId = ingredient.IngredientId,
+                    Quantity = ingredient.Quantity,
+                    RecipeId = recipeId
+                };
+
+                context.IngredientsInRecipes.Add(newIngredient);
+            }
+
+            context.SaveChanges();
+        }
+
+        private void CreateOrUpdateRecipe(Recipe recipe)
+        {
+            if (recipe.Id == 0)
+            {
+                context.Recipes.Add(recipe);
+            }
+            else
+            {
+                context.Recipes.Update(recipe);
+
+                var currentIngredients = context.IngredientsInRecipes.Where(i => i.RecipeId == recipe.Id);
+
+                foreach (var ingredient in currentIngredients)
+                {
+                    context.IngredientsInRecipes.Remove(ingredient);
+                }
+            }
+
+            context.SaveChanges();
+        }
+
+        private bool CheckIfFavouritedByCurrentUser(Recipe recipe)
+        {
+            var currentUserId = userManager.GetUserId(User);
+
+            var favouritedRecipes = context.FavouriteRecipes
+                .FirstOrDefault(fr => fr.RecipeId == recipe.Id && fr.UserId == currentUserId);
+
+            if (favouritedRecipes != null) return true;
+            else return false;
         }
     }
 }

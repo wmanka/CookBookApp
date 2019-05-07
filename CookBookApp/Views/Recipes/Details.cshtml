@@ -34,6 +34,10 @@
     }
 
     <div>
+        Number of likes: @Model.NumberOfLikes
+    </div>
+
+    <div>
         Created by:
         <a asp-controller="Profiles" asp-action="Details" asp-route-id="@Model.Recipe.User.Id">@Model.Recipe.User.UserName</a>
     </div>

@@ -12,5 +12,7 @@ namespace CookBookApp.Models.ViewModels
         public IEnumerable<IngredientWithQuantity> Ingredients { get; set; }
 
         public bool IsFavouritedByCurrentUser { get; set; }
+
+        public int NumberOfLikes { get; set; }
     }
 }
