@@ -9,65 +9,75 @@
     ViewData["Title"] = "Details";
 }
 
-    <div class="container">
-
-        <h1>@Model.Recipe.Name</h1>
-
-        @if (SignInManager.IsSignedIn(User))
-        {
-            <button name="isFavourited" type='button' class="btn btn-warning" data-button='{"recipeId": "@Model.Recipe.Id", "userId": "@UserManager.GetUserId(User)"}'>
-                @if (Model.IsFavouritedByCurrentUser)
-                {
-                    @:<i class="fas fa-heart"></i>
-                }
-                else
-                {
-                    @:<i class="far fa-heart"></i>
-                }
-            </button>
-
-            @if (Model.Recipe.UserId == UserManager.GetUserId(User))
-            {
-                <a asp-controller="Recipes" asp-action="Edit" asp-route-id="@Model.Recipe.Id" class="btn btn-info">Edit</a>
-                <a asp-controller="Recipes" asp-action="Delete" asp-route-id="@Model.Recipe.Id" class="btn btn-danger">Delete</a>
-            }
-        }
-        <br />
+<div class="container-fluid">
+    <div class="row">
         <div class="col-md-4">
-            <img alt="" src="@ViewData["RecipePicturePath"]" style="height:200px;width:200px;" />
-        </div>
+            <h1>
+                @Model.Recipe.Name
 
-        <div>
-            Number of likes: @Model.NumberOfLikes
-        </div>
-
-        <div>
-            Created by:
-            <a asp-controller="Profiles" asp-action="Details" asp-route-id="@Model.Recipe.User.Id">@Model.Recipe.User.UserName</a>
-        </div>
-
-        <h5>Description:</h5>
-        <p>@Model.Recipe.ShortDescription</p>
-
-        <h5>Ingredients:</h5>
-        <ul class="list-group col-md-6">
-            @foreach (var item in @Model.Ingredients)
+                @if (SignInManager.IsSignedIn(User))
+                {
+                    <button name="isFavourited" type='button' class="btn btn-light" data-button='{"recipeId": "@Model.Recipe.Id", "userId": "@UserManager.GetUserId(User)"}'>
+                        @Model.NumberOfLikes 
+                        @if (Model.IsFavouritedByCurrentUser)
+                        {
+                            @: <i class="fas fa-heart"></i>
+                        }
+                        else
+                        {
+                            @: <i class="far fa-heart"></i>
+                        }
+                    </button>
+                }
+                <br /><small class="text-muted">@Model.Recipe.Category.Name</small>
+            </h1>
+            <p>@Model.Recipe.ShortDescription</p>
+            <p>
+                Created by:
+                <a asp-controller="Profiles" asp-action="Details" asp-route-id="@Model.Recipe.User.Id">
+                    @Model.Recipe.User.UserName
+                </a>
+            </p>
+            @if (SignInManager.IsSignedIn(User))
             {
-                <li class="list-group-item">@item.Ingredient.Name - @item.Quantity</li>
+                @if (Model.Recipe.UserId == UserManager.GetUserId(User))
+                {
+                    <a asp-controller="Recipes" asp-action="Edit" asp-route-id="@Model.Recipe.Id" class="btn btn-info">Edit</a>
+                    <a asp-controller="Recipes" asp-action="Delete" asp-route-id="@Model.Recipe.Id" class="btn btn-danger">Delete</a>
+                }
             }
-        </ul>
 
-        <h5>Instructions:</h5>
-        <p>@Model.Recipe.Instructions</p>
-        <h5>Difficulty Level:</h5>
-        <p>@Model.Recipe.PreparationTime</p>
-        <h5>Preparation Time:</h5>
-        <p>@Model.Recipe.DifficultyLevel</p>
+        </div>
+        <div class="col-md-8">
+            <img alt="" src="@ViewData["RecipePicturePath"]" class="img-fluid" />
+            <ul class="list-unstyled list-inline  text-center">
+                <li class="list-inline-item"><i class="fas fa-signal"></i> @Model.Recipe.DifficultyLevel</li>
+                <li class="list-inline-item"><i class="far fa-clock"></i> @Model.Recipe.PreparationTime</li>
+                <li class="list-inline-item"><i class="far fa-calendar-plus"></i> @(DateTime.Now-Model.Recipe.CreatedAt) ago</li>
+            </ul>
+        </div>
+    </div>
 
-        <h5>Category:</h5>
-        <p>@Model.Recipe.Category.Name</p>
+    <div class="row">
 
     </div>
+
+    <div class="row">
+        <div class="col-md-4">
+            <h5>Ingredients:</h5>
+            <ul class="list-group ">
+                @foreach (var item in Model.Ingredients)
+                {
+                    <li class="list-group-item">@item.Ingredient.Name: @item.Quantity</li>
+                }
+            </ul>
+        </div>
+        <div class="col-md-8">
+            <h5>Instructions:</h5>
+            <p style="white-space: pre-wrap;">@Model.Recipe.Instructions</p>
+        </div>
+    </div>
+</div>
 
 @section Scripts  {
     <script>
@@ -87,7 +97,16 @@
                     method: "DELETE",
                     success: function () {
                         toastr.success('Recipe successfully removed from favourite');
-                        $('[name="isFavourited"]').html('<i class="far fa-heart"></i>');
+                        @{
+                            if(Model.NumberOfLikes > 0)
+                            {
+                                @:$('[name="isFavourited"]').html('@(Model.NumberOfLikes-1)<i class="far fa-heart"></i>');
+                            }
+                            else
+                            {
+                                @:$('[name="isFavourited"]').html('@(Model.NumberOfLikes)<i class="far fa-heart"></i>');
+                            }
+                        }
                     }
                 });
             }
@@ -99,7 +118,7 @@
                     data: { UserId: userId, RecipeId: recipeId },
                     success: function () {
                         toastr.success('Recipe successfully added to favourite');
-                        $('[name="isFavourited"]').html('<i class="fas fa-heart"></i>');
+                        $('[name="isFavourited"]').html('@(Model.NumberOfLikes+1)<i class="fas fa-heart"></i>');
                     },
                     error: function () {
                         RemoveFromFavourite(userId, recipeId);
