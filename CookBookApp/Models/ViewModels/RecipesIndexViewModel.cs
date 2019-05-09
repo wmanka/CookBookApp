@@ -9,5 +9,6 @@ namespace CookBookApp.Models.ViewModels
     {
         public IEnumerable<Recipe> Recipes { get; set; }
         public IEnumerable<MealCategory> Categories { get; set; }
+        public IEnumerable<RecipePicture> RecipePictures { get; set; }
     }
 }

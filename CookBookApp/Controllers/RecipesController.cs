@@ -25,7 +25,7 @@ namespace CookBookApp.Controllers
 
         public IActionResult Index(string category)
         {
-            IEnumerable<Recipe> recipes = context.Recipes.Include(r => r.Category).OrderByDescending(r => r.CreatedAt);
+            IEnumerable<Recipe> recipes = context.Recipes.Include(r => r.Category).Include(r => r.Picture).OrderByDescending(r => r.CreatedAt);
 
             if (!(category == "recentlyAdded" || category == null))
             { 
@@ -35,8 +35,11 @@ namespace CookBookApp.Controllers
             var vm = new RecipesIndexViewModel()
             {
                 Recipes = recipes.ToList(),
-                Categories = context.Categories.ToList()
+                Categories = context.Categories.ToList(),
+                RecipePictures = context.RecipePictures.ToList()
             };
+
+
 
             return View(vm);
         }
@@ -66,7 +69,7 @@ namespace CookBookApp.Controllers
             CreateOrUpdateRecipe(recipe);
             AddIngredientsToRecipe(vm.ChosenIngredients, recipe.Id);
 
-            return Json(new { redirectToUrl = Url.Action("Index", "Home") });
+            return Json(recipe.Id);
         }
 
         public IActionResult Details(int id)
@@ -85,6 +88,15 @@ namespace CookBookApp.Controllers
                     Ingredient = ingredient.Ingredient,
                     Quantity = ingredient.Quantity
                 });
+
+            var recipePicture = context.RecipePictures.FirstOrDefault(rp => rp.RecipeId == recipe.Id);
+
+            if (recipePicture != null)
+            {
+                var path = "data:image/jpeg;base64," +
+                    Convert.ToBase64String(recipePicture.Content, 0, recipePicture.Content.Length);
+                    ViewData["RecipePicturePath"] = path;
+            }
 
             var vm = new RecipeDetailsViewModel()
             {

@@ -13,18 +13,14 @@ namespace CookBookApp.Controllers.API
     [Route("api/favouriterecipes")]
     public class FavouriteRecipes : Controller
     {
-        public ApplicationDbContext context { get; set; }
-
-        public FavouriteRecipes(ApplicationDbContext context)
-        {
-            this.context = context;
-        }
+        public ApplicationDbContext Context { get; set; }
+        public FavouriteRecipes(ApplicationDbContext context) => Context = context;
 
         // GET: api/favouriterecipes
         [HttpGet]
         public IActionResult Get()
         {
-            var fr = context.FavouriteRecipes.OrderByDescending(fr => fr.CreatedAt).ToList();
+            var fr = Context.FavouriteRecipes.OrderByDescending(fr => fr.CreatedAt).ToList();
             return Ok(fr);
         }
 
@@ -34,14 +30,14 @@ namespace CookBookApp.Controllers.API
         {
             if (favouriteRecipe == null) BadRequest();
 
-            var frFromDb = context.FavouriteRecipes.
+            var frFromDb = Context.FavouriteRecipes.
                 FirstOrDefault(fr => fr.RecipeId == favouriteRecipe.RecipeId && fr.UserId == favouriteRecipe.UserId);
 
             if (frFromDb == null)
             {
                 favouriteRecipe.CreatedAt = DateTime.Now;
-                context.FavouriteRecipes.Add(favouriteRecipe);
-                context.SaveChanges();
+                Context.FavouriteRecipes.Add(favouriteRecipe);
+                Context.SaveChanges();
                 return Ok();
             }
             else
@@ -58,11 +54,11 @@ namespace CookBookApp.Controllers.API
         {
             if (UserId == null) BadRequest();
 
-            var recipe = context.FavouriteRecipes
+            var recipe = Context.FavouriteRecipes
                 .FirstOrDefault(fr => fr.UserId == UserId && fr.RecipeId == RecipeId);
 
-            context.FavouriteRecipes.Remove(recipe);
-            context.SaveChanges();
+            Context.FavouriteRecipes.Remove(recipe);
+            Context.SaveChanges();
         }
     }
 }
