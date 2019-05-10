@@ -8,6 +8,11 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using iTextSharp;
+using iTextSharp.text;
+using iTextSharp.text.pdf;
+using Microsoft.AspNetCore.Http;
+using System.IO;
 
 namespace CookBookApp.Controllers
 {
@@ -38,8 +43,6 @@ namespace CookBookApp.Controllers
                 Categories = context.Categories.ToList(),
                 RecipePictures = context.RecipePictures.ToList()
             };
-
-
 
             return View(vm);
         }
@@ -135,7 +138,57 @@ namespace CookBookApp.Controllers
             return RedirectToAction("Index", "Home");
         }
 
+        public IActionResult GeneratePDF(int id)
+        {
+            var recipe = context.Recipes
+                .Include(r => r.Picture)
+                .Include(r => r.Category)
+                .Include(r => r.User)
+                .Include(r => r.Ingredients).ThenInclude(i => i.Ingredient)
+                .FirstOrDefault(r => r.Id == id);
+
+            if(recipe == null) return RedirectToAction("Index", "Home");
+
+            var bytes = PrepareRecipePDF(recipe);
+            return File(bytes, "application/pdf");
+        }
+
         // PRIVATE METHODS
+
+        private byte[] PrepareRecipePDF(Recipe recipe)
+        {
+            MemoryStream ms = new MemoryStream();
+
+            Document document = new Document(PageSize.A4, 25, 25, 25, 25);
+            PdfWriter.GetInstance(document, ms);
+
+            document.Open();
+
+            Image image = Image.GetInstance(recipe.Picture.Content);
+            image.ScaleToFit(document.PageSize);
+            image.SetAbsolutePosition(0, 0);
+            document.Add(image);
+
+            document.Add(new Paragraph(recipe.Name));
+            document.Add(new Paragraph(recipe.ShortDescription));
+            document.Add(new Paragraph(recipe.Category.Name));
+            document.Add(new Paragraph(recipe.DifficultyLevel.ToString()));
+            document.Add(new Paragraph(recipe.PreparationTime));
+            document.Add(new Paragraph(recipe.Instructions));
+            document.Add(new Paragraph(recipe.User.Name));
+            document.Add(new Paragraph(recipe.CreatedAt.ToString()));
+
+            var list = new List();
+            foreach (var ingredient in recipe.Ingredients)
+            {
+                list.Add(new ListItem(ingredient.Ingredient.Name + ": " + ingredient.Quantity));
+            }
+            document.Add(list);
+
+            document.Close();
+
+            return ms.ToArray();
+        }
 
         private void AddIngredientsToRecipe(IEnumerable<IngredientInRecipe> ingredients, int recipeId)
         {
@@ -185,5 +238,6 @@ namespace CookBookApp.Controllers
             if (favouritedRecipes != null) return true;
             else return false;
         }
+    
     }
 }
