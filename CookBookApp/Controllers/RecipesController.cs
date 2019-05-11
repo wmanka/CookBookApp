@@ -13,6 +13,7 @@ using iTextSharp.text;
 using iTextSharp.text.pdf;
 using Microsoft.AspNetCore.Http;
 using System.IO;
+using System.Drawing;
 
 namespace CookBookApp.Controllers
 {
@@ -138,7 +139,7 @@ namespace CookBookApp.Controllers
             return RedirectToAction("Index", "Home");
         }
 
-        public IActionResult GeneratePDF(int id)
+        public IActionResult CreatePdf(int id)
         {
             var recipe = context.Recipes
                 .Include(r => r.Picture)
@@ -147,7 +148,7 @@ namespace CookBookApp.Controllers
                 .Include(r => r.Ingredients).ThenInclude(i => i.Ingredient)
                 .FirstOrDefault(r => r.Id == id);
 
-            if(recipe == null) return RedirectToAction("Index", "Home");
+            if (recipe == null) return RedirectToAction("Index", "Home");
 
             var bytes = PrepareRecipePDF(recipe);
             return File(bytes, "application/pdf");
@@ -159,31 +160,74 @@ namespace CookBookApp.Controllers
         {
             MemoryStream ms = new MemoryStream();
 
-            Document document = new Document(PageSize.A4, 25, 25, 25, 25);
-            PdfWriter.GetInstance(document, ms);
+            BaseFont baseFont = BaseFont.CreateFont(BaseFont.HELVETICA, BaseFont.CP1252, BaseFont.NOT_EMBEDDED);
+            Font titleFont = new Font(baseFont, 26, Font.BOLD);
+            Font labelFont = new Font(baseFont, 12, Font.BOLD);
+            Font textFont = new Font(baseFont, 12, Font.NORMAL);
+            Font italicFont = new Font(baseFont, 10, Font.ITALIC);
+
+            Document document = new Document(PageSize.A4, 50f, 50f, 25f, 25f);
+            PdfWriter writer = PdfWriter.GetInstance(document, ms);
 
             document.Open();
 
-            Image image = Image.GetInstance(recipe.Picture.Content);
-            image.ScaleToFit(document.PageSize);
-            image.SetAbsolutePosition(0, 0);
-            document.Add(image);
-
-            document.Add(new Paragraph(recipe.Name));
-            document.Add(new Paragraph(recipe.ShortDescription));
-            document.Add(new Paragraph(recipe.Category.Name));
-            document.Add(new Paragraph(recipe.DifficultyLevel.ToString()));
-            document.Add(new Paragraph(recipe.PreparationTime));
-            document.Add(new Paragraph(recipe.Instructions));
-            document.Add(new Paragraph(recipe.User.Name));
-            document.Add(new Paragraph(recipe.CreatedAt.ToString()));
-
-            var list = new List();
-            foreach (var ingredient in recipe.Ingredients)
+            var picture = new Paragraph();
+            if (recipe.Picture != null)
             {
-                list.Add(new ListItem(ingredient.Ingredient.Name + ": " + ingredient.Quantity));
+                Image image = Image.GetInstance(recipe.Picture.Content);
+
+                var scalePercent = (((document.PageSize.Width / image.Width) * 100) - 4);
+                image.ScalePercent(scalePercent);
+
+                picture.Add(image);
+                document.Add(picture);
             }
-            document.Add(list);
+
+            document.Add(new Paragraph(" "));
+
+            var header = new Paragraph
+            {
+                new Phrase(recipe.Name + "\n", titleFont),
+                new Paragraph("By " + recipe.User.Name + " at " + recipe.CreatedAt.ToShortDateString(), italicFont),
+                new Paragraph(" "),
+                new Phrase(recipe.ShortDescription, textFont)
+            };
+            document.Add(header);
+
+            document.Add(new Paragraph(" "));
+
+            var info = new Paragraph
+            {
+                new Chunk("Category: ", labelFont),
+                new Phrase(recipe.Category.Name + "\n", textFont),
+                new Chunk("Difficulty level: ", labelFont),
+                new Phrase(recipe.DifficultyLevel.ToString() + "\n", textFont),
+                new Chunk("Preparation time: ", labelFont),
+                new Phrase(recipe.PreparationTime, textFont)
+            };
+            document.Add(info);
+
+            document.Add(new Paragraph(" "));
+
+            
+            var listOfIngredients = new List();
+            foreach (var ingredient in recipe.Ingredients.OrderBy(r => r.Ingredient.Name))
+            {
+                listOfIngredients.Add(new ListItem(" " + ingredient.Ingredient.Name + ": " + ingredient.Quantity, textFont));
+            }
+
+            var ingredients = new Paragraph
+            {
+                new Chunk("Ingredients:" + "\n", labelFont),
+                listOfIngredients
+            };
+
+            document.Add(ingredients);
+
+            document.Add(new Paragraph(" "));
+
+            document.Add(new Chunk("Instructions:" + "\n", labelFont));
+            document.Add(new Paragraph(recipe.Instructions, textFont));
 
             document.Close();
 
