@@ -35,15 +35,20 @@
             <p>
                 Created by:
                 <a asp-controller="Profiles" asp-action="Details" asp-route-id="@Model.Recipe.User.Id">
-                    @Model.Recipe.User.UserName
+                    <i class="fas fa-user"></i> @Model.Recipe.User.UserName
                 </a>
-            </p>
+            </p>     
+            
+            <a asp-controller="Recipes" asp-action="CreatePdf" asp-route-id="@Model.Recipe.Id">
+                <i class="fas fa-download"></i> PDF
+            </a>
+
             @if (SignInManager.IsSignedIn(User))
             {
                 @if (Model.Recipe.UserId == UserManager.GetUserId(User))
                 {
-                    <a asp-controller="Recipes" asp-action="Edit" asp-route-id="@Model.Recipe.Id" class="btn btn-info">Edit</a>
-                    <a asp-controller="Recipes" asp-action="Delete" asp-route-id="@Model.Recipe.Id" class="btn btn-danger">Delete</a>
+                    <a asp-controller="Recipes" asp-action="Edit" asp-route-id="@Model.Recipe.Id" class="btn btn-info"><i class="fas fa-edit"></i> Edit</a>
+                    <a asp-controller="Recipes" asp-action="Delete" asp-route-id="@Model.Recipe.Id" class="btn btn-danger"><i class="fas fa-trash-alt"></i> Delete</a>
                 }
             }
 
