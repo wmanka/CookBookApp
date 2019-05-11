@@ -49,6 +49,7 @@ namespace CookBookApp
             services.AddTransient<ICategoryService, CategoryService>();
             services.AddTransient<IProfilePictureService, ProfilePictureService>();
             services.AddTransient<IIngredientCategoryService, IngredientCategoryService>();
+            services.AddTransient<IRecipeService, RecipeService>();
 
             services.AddMvc()
                 .AddNewtonsoftJson();

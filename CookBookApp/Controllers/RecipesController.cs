@@ -14,6 +14,7 @@ using iTextSharp.text.pdf;
 using Microsoft.AspNetCore.Http;
 using System.IO;
 using System.Drawing;
+using CookBookApp.Services.Interfaces;
 
 namespace CookBookApp.Controllers
 {
@@ -21,21 +22,24 @@ namespace CookBookApp.Controllers
     {
         private readonly ApplicationDbContext context;
         private readonly UserManager<ApplicationUser> userManager;
+        private readonly IRecipeService recipeService;
 
         public RecipesController(ApplicationDbContext context, 
+            IRecipeService recipeService,
             UserManager<ApplicationUser> userManager)
         {
             this.context = context;
             this.userManager = userManager;
+            this.recipeService = recipeService;
         }
 
         public IActionResult Index(string category)
         {
-            IEnumerable<Recipe> recipes = context.Recipes.Include(r => r.Category).Include(r => r.Picture).OrderByDescending(r => r.CreatedAt);
+            var recipes = recipeService.GetRecipes();
 
             if (!(category == "recentlyAdded" || category == null))
             { 
-                recipes = recipes.Where(r => r.Category.Name == category);
+                recipes = recipeService.GetRecipes(r => r.Category.Name == category);
             }
 
             var vm = new RecipesIndexViewModel()
@@ -70,17 +74,15 @@ namespace CookBookApp.Controllers
             recipe.CreatedAt = DateTime.Now;
             recipe.UserId = userManager.GetUserId(User);
 
-            CreateOrUpdateRecipe(recipe);
-            AddIngredientsToRecipe(vm.ChosenIngredients, recipe.Id);
+            recipeService.CreateOrUpdateRecipe(recipe);
+            recipeService.AddIngredientsToRecipe(vm.ChosenIngredients, recipe.Id);
 
             return Json(recipe.Id);
         }
 
         public IActionResult Details(int id)
         {
-            var recipe = context.Recipes
-                .Include(r => r.Category).Include(r => r.User)
-                .FirstOrDefault(r => r.Id == id);
+            var recipe = recipeService.GetRecipe(id);
 
             if (recipe == null) return NotFound();
 
@@ -93,21 +95,21 @@ namespace CookBookApp.Controllers
                     Quantity = ingredient.Quantity
                 });
 
-            var recipePicture = context.RecipePictures.FirstOrDefault(rp => rp.RecipeId == recipe.Id);
+            var recipePicture = recipeService.GetRecipePicture(recipe.Id);
 
             if (recipePicture != null)
             {
-                var path = "data:image/jpeg;base64," +
-                    Convert.ToBase64String(recipePicture.Content, 0, recipePicture.Content.Length);
-                    ViewData["RecipePicturePath"] = path;
+                ViewData["RecipePicturePath"] = recipeService.GetPicturePath(recipePicture);
             }
+
+            var currentUserId = userManager.GetUserId(User);
 
             var vm = new RecipeDetailsViewModel()
             {
                 Recipe = recipe,
                 Ingredients = ingredients,
-                IsFavouritedByCurrentUser = CheckIfFavouritedByCurrentUser(recipe),
-                NumberOfLikes = context.FavouriteRecipes.Where(fr => fr.RecipeId == id).Count()
+                IsFavouritedByCurrentUser = recipeService.CheckIfRecipeIsFavouritedByUser(recipe, currentUserId),
+                NumberOfLikes = recipeService.GetNumberOfLikes(id)
             };
 
             return View(vm);
@@ -119,7 +121,7 @@ namespace CookBookApp.Controllers
             var vm = new CreateRecipeViewModel()
             {
                 Ingredients = context.Ingredients.ToList(),
-                Recipe = context.Recipes.FirstOrDefault(r => r.Id == id),
+                Recipe = recipeService.GetRecipe(id),
                 MealCategories = context.Categories.ToList(),
                 ChosenIngredients = context.IngredientsInRecipes.Where(i => i.RecipeId == id),
                 MealCategoryId = context.Recipes.FirstOrDefault(r => r.Id == id).Category.Id
@@ -131,157 +133,15 @@ namespace CookBookApp.Controllers
         [Authorize]
         public IActionResult Delete(int id)
         {
-            var recipe = context.Recipes.FirstOrDefault(r => r.Id == id);
-
-            context.Recipes.Remove(recipe);
-            context.SaveChanges();
+            recipeService.Remove(id);
 
             return RedirectToAction("Index", "Home");
         }
 
         public IActionResult CreatePdf(int id)
         {
-            var recipe = context.Recipes
-                .Include(r => r.Picture)
-                .Include(r => r.Category)
-                .Include(r => r.User)
-                .Include(r => r.Ingredients).ThenInclude(i => i.Ingredient)
-                .FirstOrDefault(r => r.Id == id);
-
-            if (recipe == null) return RedirectToAction("Index", "Home");
-
-            var bytes = PrepareRecipePDF(recipe);
-            return File(bytes, "application/pdf");
+            var recipePdf = recipeService.GetPdf(id);
+            return File(recipePdf, "application/pdf");
         }
-
-        // PRIVATE METHODS
-
-        private byte[] PrepareRecipePDF(Recipe recipe)
-        {
-            MemoryStream ms = new MemoryStream();
-
-            BaseFont baseFont = BaseFont.CreateFont(BaseFont.HELVETICA, BaseFont.CP1252, BaseFont.NOT_EMBEDDED);
-            Font titleFont = new Font(baseFont, 26, Font.BOLD);
-            Font labelFont = new Font(baseFont, 12, Font.BOLD);
-            Font textFont = new Font(baseFont, 12, Font.NORMAL);
-            Font italicFont = new Font(baseFont, 10, Font.ITALIC);
-
-            Document document = new Document(PageSize.A4, 50f, 50f, 25f, 25f);
-            PdfWriter writer = PdfWriter.GetInstance(document, ms);
-
-            document.Open();
-
-            var picture = new Paragraph();
-            if (recipe.Picture != null)
-            {
-                Image image = Image.GetInstance(recipe.Picture.Content);
-
-                var scalePercent = (((document.PageSize.Width / image.Width) * 100) - 4);
-                image.ScalePercent(scalePercent);
-
-                picture.Add(image);
-                document.Add(picture);
-            }
-
-            document.Add(new Paragraph(" "));
-
-            var header = new Paragraph
-            {
-                new Phrase(recipe.Name + "\n", titleFont),
-                new Paragraph("By " + recipe.User.Name + " at " + recipe.CreatedAt.ToShortDateString(), italicFont),
-                new Paragraph(" "),
-                new Phrase(recipe.ShortDescription, textFont)
-            };
-            document.Add(header);
-
-            document.Add(new Paragraph(" "));
-
-            var info = new Paragraph
-            {
-                new Chunk("Category: ", labelFont),
-                new Phrase(recipe.Category.Name + "\n", textFont),
-                new Chunk("Difficulty level: ", labelFont),
-                new Phrase(recipe.DifficultyLevel.ToString() + "\n", textFont),
-                new Chunk("Preparation time: ", labelFont),
-                new Phrase(recipe.PreparationTime, textFont)
-            };
-            document.Add(info);
-
-            document.Add(new Paragraph(" "));
-
-            
-            var listOfIngredients = new List();
-            foreach (var ingredient in recipe.Ingredients.OrderBy(r => r.Ingredient.Name))
-            {
-                listOfIngredients.Add(new ListItem(" " + ingredient.Ingredient.Name + ": " + ingredient.Quantity, textFont));
-            }
-
-            var ingredients = new Paragraph
-            {
-                new Chunk("Ingredients:" + "\n", labelFont),
-                listOfIngredients
-            };
-
-            document.Add(ingredients);
-
-            document.Add(new Paragraph(" "));
-
-            document.Add(new Chunk("Instructions:" + "\n", labelFont));
-            document.Add(new Paragraph(recipe.Instructions, textFont));
-
-            document.Close();
-
-            return ms.ToArray();
-        }
-
-        private void AddIngredientsToRecipe(IEnumerable<IngredientInRecipe> ingredients, int recipeId)
-        {
-            foreach (var ingredient in ingredients)
-            {
-                var newIngredient = new IngredientInRecipe()
-                {
-                    IngredientId = ingredient.IngredientId,
-                    Quantity = ingredient.Quantity,
-                    RecipeId = recipeId
-                };
-
-                context.IngredientsInRecipes.Add(newIngredient);
-            }
-
-            context.SaveChanges();
-        }
-
-        private void CreateOrUpdateRecipe(Recipe recipe)
-        {
-            if (recipe.Id == 0)
-            {
-                context.Recipes.Add(recipe);
-            }
-            else
-            {
-                context.Recipes.Update(recipe);
-
-                var currentIngredients = context.IngredientsInRecipes.Where(i => i.RecipeId == recipe.Id);
-
-                foreach (var ingredient in currentIngredients)
-                {
-                    context.IngredientsInRecipes.Remove(ingredient);
-                }
-            }
-
-            context.SaveChanges();
-        }
-
-        private bool CheckIfFavouritedByCurrentUser(Recipe recipe)
-        {
-            var currentUserId = userManager.GetUserId(User);
-
-            var favouritedRecipes = context.FavouriteRecipes
-                .FirstOrDefault(fr => fr.RecipeId == recipe.Id && fr.UserId == currentUserId);
-
-            if (favouritedRecipes != null) return true;
-            else return false;
-        }
-    
     }
 }
