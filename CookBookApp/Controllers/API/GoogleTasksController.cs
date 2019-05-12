@@ -26,9 +26,5 @@ namespace CookBookApp.Controllers.API
 
         public GoogleTasksController(IGoogleTasksService service) => Service = service;
 
-        public void Index()
-        {
-            
-        }
     }
 }

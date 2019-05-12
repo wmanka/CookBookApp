@@ -9,13 +9,13 @@ namespace CookBookApp.Services.Interfaces
     public interface IGoogleTasksService
     {
         IEnumerable<TaskList> GetTaskLists();
-        //TaskList GetTaskList(Expression<Func<TaskList, bool>> predicate);
-        //void AddTaskList(TaskList taskList);
-        //void DeleteTaskList(TaskList taskList);
+        TaskList GetTaskList(Func<TaskList, bool> predicate);
+        void AddTaskList(string name);
+        void DeleteTaskList(TaskList taskList);
 
-        //IEnumerable<Task> GetTasks(TaskList taskList);
-        //Task GetTask(TaskList taskList, Expression<Func<Tasks, bool>> predicate);
-        //void AddTask(TaskList taskList, Task task);
-        //void DeleteTask(TaskList taskList, Task task);
+        IEnumerable<Task> GetTasks(TaskList taskList);
+        Task GetTask(TaskList taskList, Func<Task, bool> predicate);
+        void AddTask(TaskList taskList, Task task);
+        void DeleteTask(TaskList taskList, Task task);
     }
 }

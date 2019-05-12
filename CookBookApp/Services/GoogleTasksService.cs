@@ -40,6 +40,51 @@ namespace CookBookApp.Services
             });
         }
 
+        public void AddTask(TaskList taskList, Task task)
+        {
+            taskService.Tasks.Insert(task, taskList.Id).Execute();
+        }
+
+        public void AddTaskList(string name)
+        {
+            TaskList taskList = new TaskList { Title = "Shopping List - " + name };
+            taskService.Tasklists.Insert(taskList).Execute();
+        }
+
+        public void DeleteTask(TaskList taskList, Task task)
+        {
+            taskService.Tasks.Delete(taskList.Id, task.Id);
+        }
+
+        public void DeleteTaskList(TaskList taskList)
+        {
+            taskService.Tasklists.Delete(taskList.Id).Execute();
+        }
+
+        public Task GetTask(TaskList taskList, Func<Task, bool> predicate)
+        {
+            var item = taskService.Tasks.List(taskList.Id).Execute().Items.FirstOrDefault(predicate);
+
+            return item;
+        }
+
+        public TaskList GetTaskList(Func<TaskList, bool> predicate)
+        {
+            var listRequest = taskService.Tasklists.List();
+            var taskLists = listRequest.Execute().Items;
+
+            var list = taskLists.FirstOrDefault(predicate);
+
+            return list;
+        }
+
+        public IEnumerable<Task> GetTasks(TaskList taskList)
+        {
+            var items = taskService.Tasks.List(taskList.Id).Execute().Items;
+
+            return items;
+        }
+
         IEnumerable<TaskList> IGoogleTasksService.GetTaskLists()
         {
             var listRequest = taskService.Tasklists.List();
