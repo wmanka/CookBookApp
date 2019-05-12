@@ -22,6 +22,7 @@
 
 
   <ItemGroup>
+    <PackageReference Include="Google.Apis.Tasks.v1" Version="1.39.0.1513" />
     <PackageReference Include="iTextSharp" Version="5.5.13" />
     <PackageReference Include="jquery.datatables" Version="1.10.15" />
     <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="3.0.0-preview3-19153-02" />
@@ -38,6 +39,13 @@
 
   <ItemGroup>
     <Folder Include="wwwroot\js\views\" />
+  </ItemGroup>
+
+
+  <ItemGroup>
+    <Content Update="credentials.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
 </Project>

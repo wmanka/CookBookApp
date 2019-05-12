@@ -50,6 +50,7 @@ namespace CookBookApp
             services.AddTransient<IProfilePictureService, ProfilePictureService>();
             services.AddTransient<IIngredientCategoryService, IngredientCategoryService>();
             services.AddTransient<IRecipeService, RecipeService>();
+            services.AddTransient<IGoogleTasksService, GoogleTasksService>();
 
             services.AddMvc()
                 .AddNewtonsoftJson();
