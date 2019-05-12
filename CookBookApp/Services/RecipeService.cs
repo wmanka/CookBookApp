@@ -170,6 +170,7 @@ namespace CookBookApp.Services
         {
             var recipe = Context.Recipes
                 .Include(r => r.Category).Include(r => r.User)
+                .Include(r => r.Ingredients).ThenInclude(r => r.Ingredient)
                 .FirstOrDefault(r => r.Id == id);
 
             return recipe;
