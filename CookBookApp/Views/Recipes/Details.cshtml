@@ -17,8 +17,8 @@
 
                 @if (SignInManager.IsSignedIn(User))
                 {
-                    <button name="isFavourited" type='button' class="btn btn-light" data-button='{"recipeId": "@Model.Recipe.Id", "userId": "@UserManager.GetUserId(User)"}'>
-                        @Model.NumberOfLikes 
+                    <button id="favouriteBtn" name="isFavourited" type='button' class="btn btn-light" data-button='{"recipeId": "@Model.Recipe.Id", "userId": "@UserManager.GetUserId(User)"}'>
+                        @Model.NumberOfLikes
                         @if (Model.IsFavouritedByCurrentUser)
                         {
                             @: <i class="fas fa-heart"></i>
@@ -37,11 +37,15 @@
                 <a asp-controller="Profiles" asp-action="Details" asp-route-id="@Model.Recipe.User.Id">
                     <i class="fas fa-user"></i> @Model.Recipe.User.UserName
                 </a>
-            </p>     
-            
+            </p>
+
             <a asp-controller="Recipes" asp-action="CreatePdf" asp-route-id="@Model.Recipe.Id">
                 <i class="fas fa-download"></i> PDF
             </a>
+            <br />
+            <button id="shoppingList" type='button' class="btn btn-primary" data-button='{"recipeId": "@Model.Recipe.Id" }'>
+                <i class="fab fa-google"></i> Create shopping list - Google Tasks
+            </button>
 
             @if (SignInManager.IsSignedIn(User))
             {
@@ -61,10 +65,6 @@
                 <li class="list-inline-item"><i class="far fa-calendar-plus"></i> @(DateTime.Now-Model.Recipe.CreatedAt) ago</li>
             </ul>
         </div>
-    </div>
-
-    <div class="row">
-
     </div>
 
     <div class="row">
@@ -88,12 +88,40 @@
     <script>
         $(function () {
 
-            $('button').click(function () {
+            $('#favouriteBtn').click(function () {
                 var data = $.parseJSON($(this).attr('data-button'));
                 var recipeId = data.recipeId;
                 var userId = data.userId;
 
                 AddToFavourite(userId, recipeId);
+            });
+
+            $('#shoppingList').click(function () {
+
+                toastr.info("Creating shopping list");
+
+                var data = $.parseJSON($(this).attr('data-button'));
+                var recipeId = data.recipeId;
+
+                $.ajax({
+                    url: "/api/googleTaskLists?id=" + recipeId,
+                    method: "POST",
+                    data: recipeId,
+                    success: function () {
+                        toastr.remove();
+                        toastr.success('Items successfully added to shopping list');
+                    },
+                    error: function (response) {
+                        toastr.remove();
+                        if (response.status == "409") {
+                            toastr.warning("You've already created shopping list for this recipe");
+                        }
+                        else {
+                            toastr.error('Something went wrong');
+                        }
+                    }
+                });
+
             });
 
             function RemoveFromFavourite(userId, recipeId) {
