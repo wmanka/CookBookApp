@@ -24,32 +24,25 @@ namespace CookBookApp.Controllers.API
             RecipesService = recipeService;
         }
 
-        [HttpGet]
-        public IActionResult Get()
-        {
-            var result = GoogleTasksService.GetTaskLists();
-
-            return Ok(result);
-        }
-
         [HttpPost]
         public IActionResult Post(int id)
         {
             var recipe = RecipesService.GetRecipe(id);
-            var ingredients = recipe.Ingredients.ToList();
 
-            var currentTaskList = GoogleTasksService.GetTaskList(tl => tl.Title == "Shopping List - " + recipe.Name);
+            if (recipe == null) return NotFound();
 
-            if (currentTaskList == null)
+            var ingredients = recipe.Ingredients.OrderBy(i => i.Ingredient.Name).ToList();
+            var currentTaskList = GoogleTasksService.GetTaskList("Shopping List - " + recipe.Name);
+
+            if (currentTaskList != null) return Conflict();
+
+            GoogleTasksService.AddTaskList(recipe.Name);
+            var taskList = GoogleTasksService.GetTaskList("Shopping List - " + recipe.Name);
+
+            foreach (var ingredient in ingredients)
             {
-                GoogleTasksService.AddTaskList(recipe.Name);
-                var taskList = GoogleTasksService.GetTaskLists().Last();
-
-                foreach (var item in ingredients)
-                {
-                    var task = new Task { Title = item.Ingredient.Name + ": " + item.Quantity };
-                    GoogleTasksService.AddTask(taskList, task);
-                }
+                var task = new Task { Title = ingredient.Ingredient.Name + ": " + ingredient.Quantity };
+                GoogleTasksService.AddTask(taskList, task);
             }
 
             return Ok();

@@ -46,9 +46,9 @@ namespace CookBookApp.Services
             taskService.Tasks.Insert(task, taskList.Id).Execute();
         }
 
-        public void AddTaskList(string name)
+        public void AddTaskList(string title)
         {
-            TaskList taskList = new TaskList { Title = "Shopping List - " + name };
+            TaskList taskList = new TaskList { Title = "Shopping List - " + title };
             taskService.Tasklists.Insert(taskList).Execute();
         }
 
@@ -75,6 +75,16 @@ namespace CookBookApp.Services
             var taskLists = listRequest.Execute().Items;
 
             var list = taskLists.FirstOrDefault(predicate);
+
+            return list;
+        }
+
+        public TaskList GetTaskList(string title)
+        {
+            var listRequest = taskService.Tasklists.List();
+            var taskLists = listRequest.Execute().Items;
+
+            var list = taskLists.FirstOrDefault(tl => tl.Title == title);
 
             return list;
         }

@@ -10,7 +10,8 @@ namespace CookBookApp.Services.Interfaces
     {
         IEnumerable<TaskList> GetTaskLists();
         TaskList GetTaskList(Func<TaskList, bool> predicate);
-        void AddTaskList(string name);
+        TaskList GetTaskList(string title);
+        void AddTaskList(string title);
         void DeleteTaskList(TaskList taskList);
 
         IEnumerable<Task> GetTasks(TaskList taskList);

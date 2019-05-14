@@ -97,6 +97,9 @@
             });
 
             $('#shoppingList').click(function () {
+
+                toastr.info("Creating shopping list");
+
                 var data = $.parseJSON($(this).attr('data-button'));
                 var recipeId = data.recipeId;
 
@@ -105,10 +108,17 @@
                     method: "POST",
                     data: recipeId,
                     success: function () {
+                        toastr.remove();
                         toastr.success('Items successfully added to shopping list');
                     },
-                    error: function () {
-                        
+                    error: function (response) {
+                        toastr.remove();
+                        if (response.status == "409") {
+                            toastr.warning("You've already created shopping list for this recipe");
+                        }
+                        else {
+                            toastr.error('Something went wrong');
+                        }
                     }
                 });
 
