@@ -1,30 +1,33 @@
-# Book&Go - Hotel Reservation System
-This is a simple ASP.NET MVC 5 application. The aim of this project is to help manage basic admin tasks. 
+# CookBook Application
 
-### Main functions
-* create new hotel offers
-* manage customers
-* manage hotel reservations for customers
+This is a simple web application for storing and sharing cooking recipes. The main goal of this app is mostly self learning.
 
-### Installation & Development
+### Features (In Progress)
+- Registration, login, public profile management
+- Adding recipe, viewing all recipes (with sorting)
+- User can view recipe details, add it to favourite, upvote/downvote it, add comments
+- Users can follow other users
+- Main feed where followed users activity will be displayed
+- Basic admin control panel
+- Generating PDF from recipe for printing
+- Generate custom shopping list for e.g the week
+- Possibly add notification if an item from shopping list is on sale in some store nearby
+- Suggest recipes based on time, weather etc.
+- Maybe adding videos
+
+More details: https://github.com/users/wmanka/projects/2
+
+### Tech
+ - ASP.NET Core version 3.0 (Preview 3)
+ - Visual Studio 2019
+ - Entity Framework Core
+
+### Installation & Development  [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/dwyl/esta/issues)
 1. Fork/clone this repository
 2. Open project using Visual Studio
-3. Register new app at Facebook Developers Page<br> 
-   **In Visual Studio go to View->Task List to see the exact steps and code that that need to be changed!**
-4. Restore database using EF migrations (in Package Manager Console):
+3. Restore database using EF migrations
+    Open NuGet package manager console:
     ```sh
     $ Update-Database
     ```
-5. Checkout to new branch, add your code, add migration, push and create pull request.
-
-### Tech
-* ASP.NET MVC 5
-* Entity Framework
-* Bootstrap
-* jQuery
-* Bootbox
-
-### Sample screens
-<a href="https://ibb.co/cjPHZ5"><img src="https://preview.ibb.co/jLe6SQ/hrs1.png" alt="hrs1" border="0"></a>
-<a href="https://ibb.co/crVD7Q"><img src="https://preview.ibb.co/h8sh1k/hrs2.png" alt="hrs2" border="0"></a>
-<a href="https://ibb.co/h19vMk"><img src="https://preview.ibb.co/iBbaMk/hrs3.png" alt="hrs3" border="0"></a>
+3. Checkout to new branch, add your code, add migration, push and create pull request.
