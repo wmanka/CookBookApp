@@ -39,19 +39,34 @@
                 </a>
             </p>
 
-            <a asp-controller="Recipes" asp-action="CreatePdf" asp-route-id="@Model.Recipe.Id">
+            <a asp-controller="Recipes" asp-action="CreatePdf" asp-route-id="@Model.Recipe.Id" class="btn btn-dark">
                 <i class="fas fa-download"></i> PDF
             </a>
-            <br />
-            <button id="shoppingList" type='button' class="btn btn-primary" data-button='{"recipeId": "@Model.Recipe.Id" }'>
-                <i class="fab fa-google"></i> Create shopping list - Google Tasks
+
+            <br /><br />
+
+            <button id="shoppingList" type='button' class="btn btn-dark" data-button='{"recipeId": "@Model.Recipe.Id" }'>
+                <i class="fab fa-google"></i> Send shopping list to Google Tasks
             </button>          
             
-            <div class="row">
-                <input id="email" type="text" class="form-group" />
-                <button id="emailRecipe" type='button' class="btn btn-primary" data-button='{"recipeId": "@Model.Recipe.Id" }'>
-                    <i class="fab fa-email"></i> Email recipe
-                </button>
+            <br /><br />
+
+            <button id="toggleEmail" class="btn btn-dark">Send recipe to email</button>
+
+            <br />
+
+            <div id="emailForm" class="form-group">
+                <div class="row">
+                    <div class="col-md-8">
+                        <input id="email" type="text" class="form-control " />
+
+                    </div>
+                    <div class="col-md-4">
+                        <button id="emailRecipe" type='button' class="btn btn-dark" data-button='{"recipeId": "@Model.Recipe.Id" }'>
+                            <i class="fab fa-email"></i> Send
+                        </button>
+                    </div>
+                </div>
             </div>
 
 
@@ -96,6 +111,8 @@
     <script>
         $(function () {
 
+            $('#emailForm').hide();
+
             $('#favouriteBtn').click(function () {
                 var data = $.parseJSON($(this).attr('data-button'));
                 var recipeId = data.recipeId;
@@ -126,7 +143,10 @@
                     }
                 });
             });
-            
+
+            $('#toggleEmail').click(function () {
+                $('#emailForm').toggle("slow");
+            });
 
             $('#shoppingList').click(function () {
 
