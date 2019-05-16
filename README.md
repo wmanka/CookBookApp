@@ -5,17 +5,15 @@ This is a simple web application for storing and sharing cooking recipes. The ma
 ### Features (In Progress)
 - Registration, login, public profile management
 - Adding recipe, viewing all recipes (with sorting)
-- User can view recipe details, add it to favourite, add comments
+- User can view recipe details, add it to favourite, upvote/downvote it, add comments
 - Users can follow other users
 - Main feed where followed users activity will be displayed
 - Basic admin control panel
-- Generating pdf from recipe
-- Page with cooking tips&tricks
-- Notifications when other user liked, commented recipe or started following user
-- Add recipe ingredients to shopping list and send it to email/some todo app or download it as pdf
-- Ability to create a weekly meal plan 
+- Generating PDF from recipe for printing
+- Generate custom shopping list for e.g the week
 - Possibly add notification if an item from shopping list is on sale in some store nearby
-- Suggest recipes based on time, weather, recommendations etc.
+- Suggest recipes based on time, weather etc.
+- Maybe adding videos
 
 More details: https://github.com/users/wmanka/projects/2
 
@@ -23,14 +21,13 @@ More details: https://github.com/users/wmanka/projects/2
  - ASP.NET Core version 3.0 (Preview 3)
  - Visual Studio 2019
  - Entity Framework Core
- - SignalR
 
 ### Installation & Development  [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/dwyl/esta/issues)
 1. Fork/clone this repository
 2. Open project using Visual Studio
-3. Restore database using EF migrations (in Package Manager Console):
+3. Restore database using EF migrations
+    Open NuGet package manager console:
     ```sh
     $ Update-Database
     ```
 3. Checkout to new branch, add your code, add migration, push and create pull request.
-
