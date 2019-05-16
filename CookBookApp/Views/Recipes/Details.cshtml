@@ -45,7 +45,15 @@
             <br />
             <button id="shoppingList" type='button' class="btn btn-primary" data-button='{"recipeId": "@Model.Recipe.Id" }'>
                 <i class="fab fa-google"></i> Create shopping list - Google Tasks
-            </button>
+            </button>          
+            
+            <div class="row">
+                <input id="email" type="text" class="form-group" />
+                <button id="emailRecipe" type='button' class="btn btn-primary" data-button='{"recipeId": "@Model.Recipe.Id" }'>
+                    <i class="fab fa-email"></i> Email recipe
+                </button>
+            </div>
+
 
             @if (SignInManager.IsSignedIn(User))
             {
@@ -95,6 +103,30 @@
 
                 AddToFavourite(userId, recipeId);
             });
+
+            $('#emailRecipe').click(function () {
+
+                var data = $.parseJSON($(this).attr('data-button'));
+                var recipeId = data.recipeId;
+                var email = $('#email').val();
+
+                var vm = new Object();
+                vm.RecipeId = recipeId;
+                vm.Email = email;
+
+                $.ajax({
+                    url: "/api/recipeEmailSender",
+                    method: "POST",
+                    data: vm,
+                    success: function () {
+                        toastr.success("Recipe has been sent");
+                    },
+                    error: function (response) {
+                        toastr.error("Something went wrong");
+                    }
+                });
+            });
+            
 
             $('#shoppingList').click(function () {
 

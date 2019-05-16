@@ -17,6 +17,8 @@ using Microsoft.Extensions.Hosting;
 using CookBookApp.Models;
 using CookBookApp.Services;
 using CookBookApp.Services.Interfaces;
+using Microsoft.AspNetCore.Identity.UI.Services;
+using CookBookApp.Services.Options;
 
 namespace CookBookApp
 {
@@ -40,7 +42,12 @@ namespace CookBookApp
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(
                     Configuration.GetConnectionString("DefaultConnection")));
-            services.AddDefaultIdentity<ApplicationUser>()
+
+            services.AddDefaultIdentity<ApplicationUser>(config =>
+            {
+                config.SignIn.RequireConfirmedEmail = true;
+
+            })
                 .AddRoles<IdentityRole>()
                 .AddUserManager<ApplicationUserManager>()
                 .AddDefaultUI(UIFramework.Bootstrap4)
@@ -50,7 +57,11 @@ namespace CookBookApp
             services.AddTransient<IProfilePictureService, ProfilePictureService>();
             services.AddTransient<IIngredientCategoryService, IngredientCategoryService>();
             services.AddTransient<IRecipeService, RecipeService>();
+
             services.AddTransient<IGoogleTasksService, GoogleTasksService>();
+
+            services.AddTransient<IEmailSender, EmailSender>();
+            services.Configure<AuthMessageSenderOptions>(Configuration);
 
             services.AddMvc()
                 .AddNewtonsoftJson();

@@ -16,7 +16,7 @@ namespace CookBookApp.Services
 {
     public class GoogleTasksService : IGoogleTasksService
     {
-        readonly TasksService taskService;
+        private readonly TasksService taskService;
 
         public GoogleTasksService()
         {
