@@ -47,8 +47,8 @@
 
             <button id="shoppingList" type='button' class="btn btn-dark" data-button='{"recipeId": "@Model.Recipe.Id" }'>
                 <i class="fab fa-google"></i> Send shopping list to Google Tasks
-            </button>          
-            
+            </button>
+
             <br /><br />
 
             <button id="toggleEmail" class="btn btn-dark">Send recipe to email</button>
@@ -85,7 +85,7 @@
             <ul class="list-unstyled list-inline  text-center">
                 <li class="list-inline-item"><i class="fas fa-signal"></i> @Model.Recipe.DifficultyLevel</li>
                 <li class="list-inline-item"><i class="far fa-clock"></i> @Model.Recipe.PreparationTime</li>
-                <li class="list-inline-item"><i class="far fa-calendar-plus"></i> @(DateTime.Now-Model.Recipe.CreatedAt) ago</li>
+                <li class="list-inline-item"><i class="far fa-calendar-plus"></i> @(DateTime.Now - Model.Recipe.CreatedAt) ago</li>
             </ul>
         </div>
     </div>
@@ -104,6 +104,32 @@
             <h5>Instructions:</h5>
             <p style="white-space: pre-wrap;">@Model.Recipe.Instructions</p>
         </div>
+    </div>
+    
+    <h3>Comments</h3>
+    <div class="row">
+            <div id="commentsForm" class="form-group">
+                <div class="row">
+                    <div class="col-md-8">
+                        <textarea id="commentContent" type="text" class="form-control" cols="10" rows="3"></textarea>
+                    </div>
+                    <div class="col-md-4">
+                        <button id="commentSubmit" type='button' class="btn btn-dark" 
+                                data-button='{"recipeId": "@Model.Recipe.Id", "userId":"@UserManager.GetUserId(User)" }'>
+                            <i class="fas fa-plus"></i> Add
+                        </button>
+                    </div>
+                </div>
+            </div>
+    </div>
+
+    <div id="comments">
+        <ul>
+            @foreach (var item in Model.Recipe.Comments.ToList())
+            {
+                @: <li>@item.Content - @item.User.UserName - @item.CreatedAt</li>
+            }
+        </ul>
     </div>
 </div>
 
@@ -176,6 +202,31 @@
 
             });
 
+            $('#commentSubmit').click(function () {
+
+                var data = $.parseJSON($(this).attr('data-button'));
+                var recipeId = data.recipeId;
+                var userId = data.userId;
+                var content = $('#commentContent').val();
+
+                var vm = new Object();
+                vm.RecipeId = recipeId;
+                vm.UserId = userId;
+                vm.Content = content;
+
+                $.ajax({
+                    url: "/api/comments",
+                    method: "POST",
+                    data: vm,
+                    success: function () {
+                        toastr.success("Comment has been successfully added");
+                    },
+                    error: function () {
+                        toastr.error("Something went wrong");
+                    }
+                });
+            });
+
             function RemoveFromFavourite(userId, recipeId) {
                 $.ajax({
                     url: "/api/favouriterecipes/" + userId + "/" + recipeId,
@@ -211,5 +262,5 @@
                 });
             }
         });
-    </script>
+            </script>
 }

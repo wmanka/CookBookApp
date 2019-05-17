@@ -12,6 +12,7 @@ namespace CookBookApp.Services.Interfaces
         IQueryable<Recipe> GetRecipes();
         IQueryable<Recipe> GetRecipes(Expression<Func<Recipe, bool>> predicate);
         Recipe GetRecipe(int id);
+        Task<Recipe> GetRecipeAsync(int id);
         Recipe GetRecipe(Expression<Func<Recipe, bool>> predicate);
         void Add(Recipe recipe);
         void Update(Recipe recipe);

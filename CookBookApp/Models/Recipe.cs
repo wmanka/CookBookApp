@@ -40,6 +40,8 @@ namespace CookBookApp.Models
         public IEnumerable<IngredientInRecipe> Ingredients { get; set; }
 
         public IEnumerable<FavouriteRecipe> FavouriteRecipes { get; set; }
+
+        public IEnumerable<Comment> Comments { get; set; }
     }
 
     public enum DifficultyLevel

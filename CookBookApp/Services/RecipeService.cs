@@ -170,10 +170,25 @@ namespace CookBookApp.Services
         {
             var recipe = Context.Recipes
                 .Include(r => r.Category).Include(r => r.User)
+                .Include(r => r.Comments)
+                .Include(r => r.User)
+                .Include(r => r.Comments).ThenInclude(r => r.User)
                 .Include(r => r.Ingredients).ThenInclude(r => r.Ingredient)
                 .FirstOrDefault(r => r.Id == id);
 
             return recipe;
+        }
+
+        public async Task<Recipe> GetRecipeAsync(int id)
+        {
+            var recipe = Context.Recipes
+                .Include(r => r.Category).Include(r => r.User)
+                .Include(r => r.User)
+                .Include(r => r.Comments).ThenInclude(r => r.User)
+                .Include(r => r.Ingredients).ThenInclude(r => r.Ingredient)
+                .FirstAsync(r => r.Id == id);
+
+            return await recipe;
         }
 
         public Recipe GetRecipe(Expression<Func<Recipe, bool>> predicate)

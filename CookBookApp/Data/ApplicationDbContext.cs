@@ -18,6 +18,7 @@ namespace CookBookApp.Data
         public DbSet<ProfilePicture> ProfilePictures { get; set; }
         public DbSet<RecipePicture> RecipePictures { get; set; }
         public DbSet<FavouriteRecipe> FavouriteRecipes { get; set; }
+        public DbSet<Comment> Comments { get; set; }
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
