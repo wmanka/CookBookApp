@@ -9,103 +9,139 @@
     ViewData["Title"] = "Details";
 }
 
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-md-4">
-            <h1>
-                @Model.Recipe.Name
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-4">
+                <h1>
+                    @Model.Recipe.Name
+
+                    @if (SignInManager.IsSignedIn(User))
+                    {
+                        <button id="favouriteBtn" name="isFavourited" type='button' class="btn btn-light" data-button='{"recipeId": "@Model.Recipe.Id", "userId": "@UserManager.GetUserId(User)"}'>
+                            @Model.NumberOfLikes
+                            @if (Model.IsFavouritedByCurrentUser)
+                            {
+                                @: <i class="fas fa-heart"></i>
+                            }
+                            else
+                            {
+                                @: <i class="far fa-heart"></i>
+                            }
+                        </button>
+                    }
+                    <br /><small class="text-muted">@Model.Recipe.Category.Name</small>
+                </h1>
+                <p>@Model.Recipe.ShortDescription</p>
+                <p>
+                    Created by:
+                    <a asp-controller="Profiles" asp-action="Details" asp-route-id="@Model.Recipe.User.Id">
+                        <i class="fas fa-user"></i> @Model.Recipe.User.UserName
+                    </a>
+                </p>
+
+                <a asp-controller="Recipes" asp-action="CreatePdf" asp-route-id="@Model.Recipe.Id" class="btn btn-dark">
+                    <i class="fas fa-download"></i> PDF
+                </a>
+
+                <br /><br />
+
+                <button id="shoppingList" type='button' class="btn btn-dark" data-button='{"recipeId": "@Model.Recipe.Id" }'>
+                    <i class="fab fa-google"></i> Send shopping list to Google Tasks
+                </button>
+
+                <br /><br />
+
+                <button id="toggleEmail" class="btn btn-dark">Send recipe to email</button>
+
+                <br />
+
+                <div id="emailForm" class="form-group">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <input id="email" type="text" class="form-control " />
+
+                        </div>
+                        <div class="col-md-4">
+                            <button id="emailRecipe" type='button' class="btn btn-dark" data-button='{"recipeId": "@Model.Recipe.Id" }'>
+                                <i class="fab fa-email"></i> Send
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
 
                 @if (SignInManager.IsSignedIn(User))
                 {
-                    <button id="favouriteBtn" name="isFavourited" type='button' class="btn btn-light" data-button='{"recipeId": "@Model.Recipe.Id", "userId": "@UserManager.GetUserId(User)"}'>
-                        @Model.NumberOfLikes
-                        @if (Model.IsFavouritedByCurrentUser)
-                        {
-                            @: <i class="fas fa-heart"></i>
-                        }
-                        else
-                        {
-                            @: <i class="far fa-heart"></i>
-                        }
-                    </button>
+                    @if (Model.Recipe.UserId == UserManager.GetUserId(User))
+                    {
+                        <a asp-controller="Recipes" asp-action="Edit" asp-route-id="@Model.Recipe.Id" class="btn btn-info"><i class="fas fa-edit"></i> Edit</a>
+                        <a asp-controller="Recipes" asp-action="Delete" asp-route-id="@Model.Recipe.Id" class="btn btn-danger"><i class="fas fa-trash-alt"></i> Delete</a>
+                    }
                 }
-                <br /><small class="text-muted">@Model.Recipe.Category.Name</small>
-            </h1>
-            <p>@Model.Recipe.ShortDescription</p>
-            <p>
-                Created by:
-                <a asp-controller="Profiles" asp-action="Details" asp-route-id="@Model.Recipe.User.Id">
-                    <i class="fas fa-user"></i> @Model.Recipe.User.UserName
-                </a>
-            </p>
 
-            <a asp-controller="Recipes" asp-action="CreatePdf" asp-route-id="@Model.Recipe.Id" class="btn btn-dark">
-                <i class="fas fa-download"></i> PDF
-            </a>
+            </div>
+            <div class="col-md-8">
+                <img alt="" src="@ViewData["RecipePicturePath"]" class="img-fluid" />
+                <ul class="list-unstyled list-inline  text-center">
+                    <li class="list-inline-item"><i class="fas fa-signal"></i> @Model.Recipe.DifficultyLevel</li>
+                    <li class="list-inline-item"><i class="far fa-clock"></i> @Model.Recipe.PreparationTime</li>
+                    <li class="list-inline-item"><i class="far fa-calendar-plus"></i> @(DateTime.Now - Model.Recipe.CreatedAt) ago</li>
+                </ul>
+            </div>
+        </div>
 
-            <br /><br />
+        <div class="row">
+            <div class="col-md-4">
+                <h5>Ingredients:</h5>
+                <ul class="list-group ">
+                    @foreach (var item in Model.Ingredients)
+                    {
+                        <li class="list-group-item">@item.Ingredient.Name: @item.Quantity</li>
+                    }
+                </ul>
+            </div>
+            <div class="col-md-8">
+                <h5>Instructions:</h5>
+                <p style="white-space: pre-wrap;">@Model.Recipe.Instructions</p>
+            </div>
+        </div>
 
-            <button id="shoppingList" type='button' class="btn btn-dark" data-button='{"recipeId": "@Model.Recipe.Id" }'>
-                <i class="fab fa-google"></i> Send shopping list to Google Tasks
-            </button>          
-            
-            <br /><br />
+        <br />
 
-            <button id="toggleEmail" class="btn btn-dark">Send recipe to email</button>
+        <h5>Comments</h5>
 
-            <br />
-
-            <div id="emailForm" class="form-group">
-                <div class="row">
-                    <div class="col-md-8">
-                        <input id="email" type="text" class="form-control " />
-
-                    </div>
-                    <div class="col-md-4">
-                        <button id="emailRecipe" type='button' class="btn btn-dark" data-button='{"recipeId": "@Model.Recipe.Id" }'>
-                            <i class="fab fa-email"></i> Send
-                        </button>
-                    </div>
+        @if (SignInManager.IsSignedIn(User))
+        {
+            <div class="row">
+                <div class="col-md-8">
+                    <textarea id="commentContent" type="text" class="form-control" cols="26" rows="1"
+                              placeholder="Add new comment"></textarea>
+                </div>
+                <div class="col-md-4">
+                    <button id="commentSubmit" type='button' class="btn btn-dark"
+                            data-button='{"recipeId": "@Model.Recipe.Id", "userId":"@UserManager.GetUserId(User)" }'>
+                        <i class="fas fa-plus"></i> Add comment
+                    </button>
                 </div>
             </div>
+            <br />
+        }
 
+        <div id="comments" class="list-group">
+            <div id="commentsList" class="list-group-item list-group-item-action flex-column align-items-start">
 
-            @if (SignInManager.IsSignedIn(User))
-            {
-                @if (Model.Recipe.UserId == UserManager.GetUserId(User))
+                @foreach (var item in Model.Recipe.Comments.ToList())
                 {
-                    <a asp-controller="Recipes" asp-action="Edit" asp-route-id="@Model.Recipe.Id" class="btn btn-info"><i class="fas fa-edit"></i> Edit</a>
-                    <a asp-controller="Recipes" asp-action="Delete" asp-route-id="@Model.Recipe.Id" class="btn btn-danger"><i class="fas fa-trash-alt"></i> Delete</a>
+                    <div class="d-flex w-100 justify-content-between">
+                        <h5 class="mb-1">@item.Content</h5>
+                        <small>@(DateTime.Now - item.Recipe.CreatedAt)</small>
+                    </div>
+                    <small>@item.User.UserName</small>
                 }
-            }
 
-        </div>
-        <div class="col-md-8">
-            <img alt="" src="@ViewData["RecipePicturePath"]" class="img-fluid" />
-            <ul class="list-unstyled list-inline  text-center">
-                <li class="list-inline-item"><i class="fas fa-signal"></i> @Model.Recipe.DifficultyLevel</li>
-                <li class="list-inline-item"><i class="far fa-clock"></i> @Model.Recipe.PreparationTime</li>
-                <li class="list-inline-item"><i class="far fa-calendar-plus"></i> @(DateTime.Now-Model.Recipe.CreatedAt) ago</li>
-            </ul>
+            </div>
         </div>
     </div>
-
-    <div class="row">
-        <div class="col-md-4">
-            <h5>Ingredients:</h5>
-            <ul class="list-group ">
-                @foreach (var item in Model.Ingredients)
-                {
-                    <li class="list-group-item">@item.Ingredient.Name: @item.Quantity</li>
-                }
-            </ul>
-        </div>
-        <div class="col-md-8">
-            <h5>Instructions:</h5>
-            <p style="white-space: pre-wrap;">@Model.Recipe.Instructions</p>
-        </div>
-    </div>
-</div>
 
 @section Scripts  {
     <script>
@@ -176,6 +212,36 @@
 
             });
 
+            $('#commentSubmit').click(function () {
+
+                var data = $.parseJSON($(this).attr('data-button'));
+                var recipeId = data.recipeId;
+                var userId = data.userId;
+                var content = $('#commentContent').val();
+
+                var vm = new Object();
+                vm.RecipeId = recipeId;
+                vm.UserId = userId;
+                vm.Content = content;
+
+                $.ajax({
+                    url: "/api/comments",
+                    method: "POST",
+                    data: vm,
+                    success: function (response) {
+                        toastr.success("Comment has been successfully added");
+
+                        $('#commentsList').prepend(
+                            '<div class="d-flex w-100 justify-content-between"><h5 class="mb-1">' + response.content +
+                            '</h5 ><small>' + response.createdAt + '</small></div><small>' + response.userId + '</small>'
+                        );
+                    },
+                    error: function () {
+                        toastr.error("Something went wrong");
+                    }
+                });
+            });
+
             function RemoveFromFavourite(userId, recipeId) {
                 $.ajax({
                     url: "/api/favouriterecipes/" + userId + "/" + recipeId,
@@ -211,5 +277,5 @@
                 });
             }
         });
-    </script>
+            </script>
 }
