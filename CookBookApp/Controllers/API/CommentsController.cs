@@ -6,6 +6,7 @@ using CookBookApp.Data;
 using CookBookApp.DTO;
 using CookBookApp.Models;
 using CookBookApp.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -37,7 +38,7 @@ namespace CookBookApp.Controllers.API
             Context.Comments.Add(comment);
             Context.SaveChanges();
 
-            return Ok();
+            return Ok(comment);
         }
 
         [HttpGet("{id}")]
