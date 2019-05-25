@@ -26,6 +26,8 @@
             data: vm,
             success: function () {
                 toastr.success("Recipe has been sent");
+                $('#emailForm').toggle("slow");
+                $('#emailForm input[type=text]').val("");
             },
             error: function () {
                 toastr.error("Something went wrong");

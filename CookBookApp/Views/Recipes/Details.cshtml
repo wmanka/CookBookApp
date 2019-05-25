@@ -17,7 +17,11 @@
             @if (SignInManager.IsSignedIn(User))
             {
                 <button id="favouriteBtn" name="isFavourited" type='button' class="btn btn-light" 
-                        data-button='{"recipeId": "@Model.Recipe.Id", "userId": "@UserManager.GetUserId(User)", "numberOfLikes": "@Model.NumberOfLikes"}'>
+                        data-button='{
+                            "recipeId": "@Model.Recipe.Id",
+                            "userId": "@UserManager.GetUserId(User)",
+                            "numberOfLikes": "@Model.NumberOfLikes"
+                        }'>
                     @Model.NumberOfLikes
                     @if (Model.IsFavouritedByCurrentUser)
                     {
@@ -40,18 +44,19 @@
         </p>
 
         <a asp-controller="Recipes" asp-action="CreatePdf" asp-route-id="@Model.Recipe.Id" class="btn btn-dark">
-            <i class="fas fa-download"></i> PDF
+            <i class="fas fa-download"></i> Download PDF
         </a>
 
         <br /><br />
 
-        <button id="shoppingList" type='button' class="btn btn-dark" data-button='{"recipeId": "@Model.Recipe.Id" }'>
-            <i class="fab fa-google"></i> Send shopping list to Google Tasks
+        <button id="shoppingList" type='button' class="btn btn-dark" 
+                data-button='{"recipeId": "@Model.Recipe.Id" }'>
+            <i class="fab fa-google"></i> Create Google Tasks Shopping List
         </button>
 
         <br /><br />
 
-        <button id="toggleEmail" class="btn btn-dark">Send recipe to email</button>
+        <button id="toggleEmail" class="btn btn-dark"><i class="far fa-envelope"></i> Send Email</button>
 
         <br />
 
@@ -59,11 +64,10 @@
             <div class="row">
                 <div class="col-md-8">
                     <input id="email" type="text" class="form-control " />
-
                 </div>
                 <div class="col-md-4">
                     <button id="emailRecipe" type='button' class="btn btn-dark" data-button='{"recipeId": "@Model.Recipe.Id" }'>
-                        <i class="fab fa-email"></i> Send
+                       Send
                     </button>
                 </div>
             </div>
@@ -85,7 +89,7 @@
         <ul class="list-unstyled list-inline  text-center">
             <li class="list-inline-item"><i class="fas fa-signal"></i> @Model.Recipe.DifficultyLevel</li>
             <li class="list-inline-item"><i class="far fa-clock"></i> @Model.Recipe.PreparationTime</li>
-            <li class="list-inline-item"><i class="far fa-calendar-plus"></i> @(DateTime.Now - Model.Recipe.CreatedAt) ago</li>
+            <li class="list-inline-item"><i class="far fa-calendar-plus"></i> @Model.NumberOfDaysFromCreation days ago</li>
         </ul>
     </div>
 </div>
@@ -130,16 +134,14 @@
 
     <div id="comments" class="list-group">
         <div id="commentsList" class="list-group-item list-group-item-action flex-column align-items-start">
-
             @foreach (var item in Model.Recipe.Comments.ToList())
             {
                 <div class="d-flex w-100 justify-content-between">
                     <h5 class="mb-1">@item.Content</h5>
-                    <small>@(DateTime.Now - item.Recipe.CreatedAt)</small>
+                    <small>@((DateTime.Now - item.Recipe.CreatedAt).Days) days ago</small>
                 </div>
                 <small>@item.User.UserName</small>
             }
-
         </div>
     </div>
 </div>

@@ -25,7 +25,14 @@
 
     <div class="row">
         <div class="col-md-3">
-            <img alt="" src="@ViewData["AvatarPath"]" class="img-fluid rounded" style="height:200px;width:200px;" />
+            @if (ViewData["AvatarPath"] == null)
+            {
+                <img src="https://picsum.photos/200/300/?blur" />
+            }
+            else
+            {
+                <img alt="" src="@ViewData["AvatarPath"]" class="img-fluid rounded" style="height:200px;width:200px;" />
+            }
         </div>
         <div class="col-md-3">
             <h3>@Model.User.Name</h3>

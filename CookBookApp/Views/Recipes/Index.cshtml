@@ -13,7 +13,7 @@
     <li class="nav-item dropdown">
         <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Categories</a>
         <div class="dropdown-menu">
-            @foreach (var category in @Model.Categories)
+            @foreach (var category in Model.Categories)
             {
                 <a asp-action="Index" asp-controller="Recipes" asp-route-category="@category.Name" class="dropdown-item">@category.Name</a>
             }
