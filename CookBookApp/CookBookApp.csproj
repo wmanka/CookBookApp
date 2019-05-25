@@ -39,11 +39,6 @@
 
 
   <ItemGroup>
-    <Folder Include="wwwroot\js\views\" />
-  </ItemGroup>
-
-
-  <ItemGroup>
     <Content Update="credentials.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

@@ -89,12 +89,12 @@
 
 
 @section Scripts  {
-    <script>
+<script>
+        
+    var ChosenIngredients = new Array();
 
     $(function () {
         var currentId = @Model.Recipe.Id;
-
-        var ChosenIngredients = new Array();
 
         if (currentId != 0)
         {
@@ -102,25 +102,6 @@
             {
                 @:AppendAddedIngredient(@ingredient.IngredientId, "@ingredient.Ingredient.Name", "@ingredient.Quantity");
             }
-        }
-
-        function AppendAddedIngredient(id, name, quantity) {
-            var ingredientInRecipe = new Object();
-            ingredientInRecipe.IngredientId = id;
-            ingredientInRecipe.Quantity = quantity;
-            ChosenIngredients.push(ingredientInRecipe);
-
-            AppendToTable(id, name, quantity);
-        }
-
-        function AppendToTable(id, name, quantity) {
-            $('#ingredientsTable').append("<tr id=" + id + ">" +
-                "<td>" + name + "</td>" +
-                "<td>" + quantity + "</td>" +
-                "<td><input id='btnRemoveIngredient' type='button' value='delete' onclick='Remove(" + id + ")' class='btn btn-danger' data-button=" + id + "/></td>" +
-                "</tr>");
-
-                $('#ingredientsTable tr#' + id).hide().fadeIn(300);
         }
 
         $("#btn-add-ingredient").click(function () {
@@ -145,19 +126,6 @@
                     AppendToTable(ingredientInRecipe.IngredientId, ingredientName, ingredientInRecipe.Quantity);
                 }
             });
-
-        function Remove(id) {
-
-                $.each(ChosenIngredients, function (index, value) {
-                    if (value.IngredientId == id) {
-                        ChosenIngredients.splice(index, 1);
-
-                        $('#ingredientsTable tr#' + id).fadeOut(300, function () {
-                            $(this).remove();
-                        });
-                    }
-                });
-        }
 
         $("#btnPost").click(function () {
 
@@ -205,7 +173,6 @@
             });
         });
 
-
         $('#inputInstructions').keypress(function(event) {
             if (event.which == 13) {
                 event.preventDefault();
@@ -214,6 +181,37 @@
             }
         });
     });
-    </script>
+
+    function Remove(id) {
+        $.each(ChosenIngredients, function (index, value) {
+            if (value.IngredientId == id) {
+                ChosenIngredients.splice(index, 1);
+
+                $('#ingredientsTable tr#' + id).fadeOut(300, function () {
+                    $(this).remove();
+                });
+            }
+        });
+    }
+
+    function AppendAddedIngredient(id, name, quantity) {
+            var ingredientInRecipe = new Object();
+            ingredientInRecipe.IngredientId = id;
+            ingredientInRecipe.Quantity = quantity;
+            ChosenIngredients.push(ingredientInRecipe);
+
+            AppendToTable(id, name, quantity);
+    }
+
+    function AppendToTable(id, name, quantity) {
+            $('#ingredientsTable').append("<tr id=" + id + ">" +
+                "<td>" + name + "</td>" +
+                "<td>" + quantity + "</td>" +
+                "<td><input id='btnRemoveIngredient' type='button' value='delete' onclick='Remove(" + id + ")' class='btn btn-danger' data-button=" + id + "/></td>" +
+                "</tr>");
+
+                $('#ingredientsTable tr#' + id).hide().fadeIn(300);
+        }
+</script>
 }
 

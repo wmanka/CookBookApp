@@ -14,5 +14,7 @@ namespace CookBookApp.Models.ViewModels
         public bool IsFavouritedByCurrentUser { get; set; }
 
         public int NumberOfLikes { get; set; }
+
+        public int NumberOfDaysFromCreation => (DateTime.Now - Recipe.CreatedAt).Days;
     }
 }
